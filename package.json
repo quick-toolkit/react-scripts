@@ -1,0 +1,133 @@
+{
+  "name": "@quick-toolkit/react-scripts",
+  "version": "1.0.0",
+  "description": "react-scripts",
+  "main": "dist",
+  "types": "dist/types",
+  "bin": {
+    "react-scripts": "./dist/bin/index.js"
+  },
+  "scripts": {
+    "build:clean": "rimraf dist && rimraf docs",
+    "build:cjs": "tsc --project tsconfig.prod.cjs.json",
+    "build:types": "tsc --project tsconfig.prod.types.json",
+    "build:docs": "typedoc --options ./typedoc.json",
+    "release": "yarn build:clean && yarn build:cjs",
+    "bin:start": "ts-node ./src/bin/index.ts start",
+    "bin:start2": "node --trace-warnings ./dist/bin/index.js start",
+    "bin:build": "ts-node ./src/bin/index.ts build"
+  },
+  "keywords": [
+    "@quick-toolkit/react-scripts",
+    "quick-toolkit",
+    "react-scripts"
+  ],
+  "author": "YunlongRan<549510622@qq.com>",
+  "bugs": {
+    "url": "https://github.com/@quick-toolkit/react-scripts/issues"
+  },
+  "homepage": "https://github.com/@quick-toolkit/react-scriptsr#readme",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/inquirer": "^8.2.0",
+    "@types/ip": "^1.1.0",
+    "@types/postcss-preset-env": "^6.7.3",
+    "@types/react": "^17.0.43",
+    "@types/react-dom": "^17.0.14",
+    "@types/rimraf": "^3.0.2",
+    "chai": "^4.3.6",
+    "core-js": "^3.21.1",
+    "inquirer": "^8.2.2",
+    "less": "^4.1.2",
+    "less-loader": "^10.2.0",
+    "mocha": "^9.2.2",
+    "prettier": "^2.6.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "ts-node": "^10.7.0",
+    "typedoc": "^0.22.13",
+    "web-vitals": "^2.1.4"
+  },
+  "dependencies": {
+    "@babel/core": "^7.17.8",
+    "@babel/preset-env": "^7.16.11",
+    "@babel/preset-react": "^7.16.7",
+    "@pmmmwh/react-refresh-webpack-plugin": "^0.5.4",
+    "@types/node": "^17.0.23",
+    "@typescript-eslint/eslint-plugin": "^5.16.0",
+    "@typescript-eslint/parser": "^5.16.0",
+    "autoprefixer": "^10.4.4",
+    "babel-loader": "^8.2.4",
+    "babel-plugin-named-asset-import": "^0.3.8",
+    "babel-preset-react-app": "^10.0.1",
+    "chalk": "^4.1.2",
+    "commander": "^9.1.0",
+    "copy-webpack-plugin": "^10.2.4",
+    "css-loader": "^5.2.7",
+    "css-minimizer-webpack-plugin": "^3.4.1",
+    "dotenv": "^16.0.0",
+    "download-git-repo": "^3.0.2",
+    "eslint": "^8.12.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-config-react-app": "^7.0.0",
+    "eslint-plugin-import": "^2.25.4",
+    "eslint-plugin-jest": "^26.1.3",
+    "eslint-plugin-jsx-a11y": "^6.5.1",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-react-hooks": "^4.3.0",
+    "eslint-plugin-testing-library": "^5.1.0",
+    "eslint-webpack-plugin": "^3.1.1",
+    "file-loader": "^6.2.0",
+    "fork-ts-checker-webpack-plugin": "6.5.0",
+    "html-webpack-plugin": "^5.5.0",
+    "ip": "^1.1.5",
+    "mini-css-extract-plugin": "^2.6.0",
+    "postcss": "^8.4.12",
+    "postcss-flexbugs-fixes": "^5.0.2",
+    "postcss-loader": "^6.2.1",
+    "postcss-normalize": "^10.0.1",
+    "postcss-preset-env": "^7.4.3",
+    "process": "^0.11.10",
+    "react-app-polyfill": "^3.0.0",
+    "react-dev-utils": "^12.0.0",
+    "react-refresh": "^0.11.0",
+    "reflect-metadata": "^0.1.13",
+    "rimraf": "^3.0.2",
+    "style-loader": "^3.3.1",
+    "stylelint": "^14.6.1",
+    "stylelint-webpack-plugin": "^3.2.0",
+    "terser-webpack-plugin": "^5.3.1",
+    "ts-loader": "^9.2.8",
+    "typescript": "^4.6.3",
+    "url": "^0.11.0",
+    "url-loader": "^4.1.1",
+    "webpack": "^5.70.0",
+    "webpack-dev-server": "^4.7.4",
+    "webpack-manifest-plugin": "^5.0.0",
+    "webpack-merge": "^5.8.0"
+  },
+  "optionalDependencies": {
+    "fsevents": "^2.1.3"
+  },
+  "peerDependencies": {
+    "react": ">= 16",
+    "typescript": "^3.2.1 || ^4"
+  },
+  "peerDependenciesMeta": {
+    "typescript": {
+      "optional": true
+    }
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

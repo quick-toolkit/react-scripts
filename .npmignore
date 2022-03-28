@@ -1,0 +1,16 @@
+*.log*
+*.lock
+tsconfig.prod.*
+
+node_modules/
+src/
+cache/
+docs/
+sample/
+test/
+.idea/
+
+.mocharc.json
+.eslintrc
+tsconfig.*
+typedoc.json
