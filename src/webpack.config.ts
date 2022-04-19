@@ -54,6 +54,7 @@ const reactRefreshOverlayEntry = require.resolve(
 
 let babelLoaderOptions = {
   presets: ['@babel/preset-env', '@babel/preset-react'],
+  plugins: isProduction ? undefined : [require.resolve('react-refresh/babel')]
 };
 let tsLoaderOptions = {
   // disable type checker - we will use it in fork plugin
@@ -174,14 +175,14 @@ if (fs.existsSync(path.resolve('project.config.js'))) {
  * 获取样式loaders
  * @param isModule
  */
-const getStyleLoaders = (isModule = false, importLoaders = 1): any => {
+const getStyleLoaders = (isModule = false): any => {
   const cssLoader: any = {
     loader: 'css-loader',
     options: {
       modules: isModule,
       import: true,
       url: true,
-      importLoaders,
+      importLoaders: isProduction ? 2 : 1,
       ...cssLoaderOptions,
     },
   };
@@ -193,16 +194,18 @@ const getStyleLoaders = (isModule = false, importLoaders = 1): any => {
     cssLoader.options.localIdentName = '[path][name]__[local]--[hash:base64:5]';
     cssLoader.options.camelCase = true;
   }
-  const miniCssLoader = isProduction
+
+  return isProduction
     ? [
         'style-loader',
         {
           loader: MiniCssExtractPlugin.loader,
           options: miniCssExtractPluginOptions,
         },
+        cssLoader,
+        postCssLoader,
       ]
-    : ['style-loader'];
-  return [...miniCssLoader, cssLoader, postCssLoader];
+    : ['style-loader', cssLoader];
 };
 
 const plugins: WebpackPluginInstance[] = [
@@ -236,22 +239,57 @@ const plugins: WebpackPluginInstance[] = [
   }),
 ];
 
+if (isProduction) {
+  plugins.push(
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: path.resolve('public'),
+          to: path.resolve('dist'),
+          filter: (p): boolean => path.extname(p) !== '.html',
+        },
+      ],
+    }),
+    new WebpackManifestPlugin({
+      fileName: 'asset-manifest.json',
+      publicPath: process.env.PUBLIC_URL,
+    }),
+    new MiniCssExtractPlugin({
+      filename: 'assets/styles/[name].[hash:8].css',
+    })
+  );
+} else {
+  plugins.push(
+    new ReactRefreshPlugin({
+      overlay: {
+        entry: webpackDevClientEntry,
+        // The expected exports are slightly different from what the overlay exports,
+        // so an interop is included here to enable feedback on module-level errors.
+        module: reactRefreshOverlayEntry,
+        // Since we ship a custom dev client and overlay integration,
+        // the bundled socket handling logic can be eliminated.
+        sockIntegration: false,
+      },
+    })
+  );
+}
+
 const configuration: Configuration = {
   entry: [path.resolve('src')],
   module: {
     rules: [
       {
         test: /\.module.css$/,
-        use: getStyleLoaders(true, 1),
+        use: getStyleLoaders(true),
       },
       {
         test: /\.css$/,
-        use: getStyleLoaders(true, 1),
+        use: getStyleLoaders(true),
       },
       {
         test: /\.module.less$/,
         use: [
-          ...getStyleLoaders(true, 2),
+          ...getStyleLoaders(true),
           {
             loader: 'less-loader',
             options: lessLoaderOptions,
@@ -261,7 +299,7 @@ const configuration: Configuration = {
       {
         test: /\.less$/,
         use: [
-          ...getStyleLoaders(false, 2),
+          ...getStyleLoaders(false),
           {
             loader: 'less-loader',
             options: lessLoaderOptions,
@@ -271,7 +309,7 @@ const configuration: Configuration = {
       {
         test: /\.module.s[ac]ss$/i,
         use: [
-          ...getStyleLoaders(true, 2),
+          ...getStyleLoaders(true),
           {
             loader: 'sass-loader',
             options: sassLoaderOptions,
@@ -281,7 +319,7 @@ const configuration: Configuration = {
       {
         test: /\.s[ac]ss$/i,
         use: [
-          ...getStyleLoaders(false, 2),
+          ...getStyleLoaders(false),
           {
             loader: 'sass-loader',
             options: sassLoaderOptions,
@@ -403,41 +441,6 @@ const configuration: Configuration = {
   devtool: 'inline-source-map',
   mode: isProduction ? 'production' : 'development',
 };
-
-if (isProduction) {
-  plugins.push(
-    new CopyWebpackPlugin({
-      patterns: [
-        {
-          from: path.resolve('public'),
-          to: path.resolve('dist'),
-          filter: (p): boolean => path.extname(p) !== '.html',
-        },
-      ],
-    }),
-    new WebpackManifestPlugin({
-      fileName: 'asset-manifest.json',
-      publicPath: process.env.PUBLIC_URL,
-    }),
-    new MiniCssExtractPlugin({
-      filename: 'assets/styles/[name].[hash:8].css',
-    })
-  );
-} else {
-  plugins.push(
-    new ReactRefreshPlugin({
-      overlay: {
-        entry: webpackDevClientEntry,
-        // The expected exports are slightly different from what the overlay exports,
-        // so an interop is included here to enable feedback on module-level errors.
-        module: reactRefreshOverlayEntry,
-        // Since we ship a custom dev client and overlay integration,
-        // the bundled socket handling logic can be eliminated.
-        sockIntegration: false,
-      },
-    })
-  );
-}
 
 export const devServer = devServerOptions;
 

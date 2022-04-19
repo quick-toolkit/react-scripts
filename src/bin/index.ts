@@ -22,17 +22,20 @@
  */
 
 import 'reflect-metadata';
+import ora from 'ora';
 import { program } from 'commander';
 import chalk from 'chalk';
+import path from 'path';
+import inquirer from 'inquirer';
+import download from 'download-git-repo';
 import { start } from '../lib/start';
 import { build } from '../lib/build';
 import { setEnv } from '../lib/set-env';
+import { install } from '../lib/install';
 
 const PACKAGE = require('../../package.json');
 
-const VERSION = PACKAGE.version;
-
-program.version(VERSION as string, '-v, --version');
+program.version(PACKAGE.version as string, '-v, --version');
 
 program
   .command('start')
@@ -42,6 +45,7 @@ program
     setEnv(true);
     start();
   });
+
 program
   .command('build')
   .description('Build react app')
@@ -52,10 +56,42 @@ program
   });
 
 program
-  .command('create')
+  .command('create <project-name>')
   .description('Create react app')
-  .action(() => {
-    // start
+  .action((projectName: string) => {
+    const spinner = ora('Start download template.');
+    download(
+      'quick-toolkit/react-app-template',
+      path.resolve(projectName),
+      async (err) => {
+        if (err) {
+          spinner.fail(err.message);
+          throw err;
+        }
+        spinner.succeed('Download template success!');
+        const { isInstall } = await inquirer.prompt<{ isInstall: boolean }>({
+          type: 'confirm',
+          name: 'isInstall',
+          message: 'Is install dependencies ?',
+          default: true,
+        });
+        if (isInstall) {
+          const { select } = await inquirer.prompt<{ select: string }>({
+            type: 'list',
+            message: 'Select package manager.',
+            choices: ['use yarn', 'use npm'],
+            default: 0,
+            name: 'select',
+          });
+          try {
+            await install(select === 'use yarn' ? 'yarn' : 'npm', projectName);
+            spinner.succeed('Install success.');
+          } catch (err) {
+            spinner.fail('Install fail.');
+          }
+        }
+      }
+    );
   });
 
 program.parse(process.argv);
