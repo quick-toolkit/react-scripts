@@ -33,7 +33,7 @@ import { build } from '../lib/build';
 import { setEnv } from '../lib/set-env';
 import { install } from '../lib/install';
 
-const PACKAGE = require('../../package.json');
+const PACKAGE = require(path.join(__dirname, '../', '../', 'package.json'));
 
 program.version(PACKAGE.version as string, '-v, --version');
 

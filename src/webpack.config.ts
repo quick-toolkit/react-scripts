@@ -54,7 +54,7 @@ const reactRefreshOverlayEntry = require.resolve(
 
 let babelLoaderOptions = {
   presets: ['@babel/preset-env', '@babel/preset-react'],
-  plugins: isProduction ? undefined : [require.resolve('react-refresh/babel')]
+  plugins: isProduction ? undefined : [require.resolve('react-refresh/babel')],
 };
 let tsLoaderOptions = {
   // disable type checker - we will use it in fork plugin
@@ -416,6 +416,9 @@ const configuration: Configuration = {
   resolve: {
     // Add `.ts` and `.tsx` as a resolvable extension.
     extensions: ['.ts', '.tsx', '.js', '.jsx', '.json', '.node'],
+    alias: {
+      src: path.resolve('src'),
+    },
   },
   plugins,
   optimization: {

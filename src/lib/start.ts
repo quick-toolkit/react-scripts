@@ -28,8 +28,12 @@ import { clearConsole } from './clear-console';
 import ip from 'ip';
 
 const isInteractive = process.stdout.isTTY;
-const PACKAGE: Record<string, string> = require(path.resolve('package.json'));
-
+const PACKAGE: Record<string, string> = require(path.join(
+  __dirname,
+  '../',
+  '../',
+  'package.json'
+));
 /**
  * 开始编译
  */
