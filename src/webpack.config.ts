@@ -121,7 +121,9 @@ let devServerOptions = {
   },
   port: 3000,
   hot: true,
-  historyApiFallback: true,
+  historyApiFallback: {
+    disableDotRule: true,
+  },
   compress: true,
   open: true,
 };
@@ -231,6 +233,7 @@ const plugins: WebpackPluginInstance[] = [
     publicPath: process.env.PUBLIC_URL,
     inject: true,
     filename: 'index.html',
+    hash: false,
     template: path.resolve('public', 'index.html'),
     minify: true,
   }),
@@ -255,7 +258,7 @@ if (isProduction) {
       publicPath: process.env.PUBLIC_URL,
     }),
     new MiniCssExtractPlugin({
-      filename: 'assets/styles/[name].[hash:8].css',
+      filename: 'assets/styles/[name].[fullhash].css',
     })
   );
 } else {
@@ -332,7 +335,7 @@ const configuration: Configuration = {
           ? {
               loader: 'file-loader',
               options: {
-                name: 'assets/images/[name].[hash:8].[ext]',
+                name: 'assets/images/[name].[fullhash].[ext]',
                 limit: 10000,
                 esModule: false,
                 ...fileLoaderOptions,
@@ -351,7 +354,7 @@ const configuration: Configuration = {
           ? {
               loader: 'file-loader',
               options: {
-                name: 'assets/medias/[name].[hash:8].[ext]',
+                name: 'assets/medias/[name].[fullhash].[ext]',
                 limit: 10000,
                 esModule: false,
                 ...fileLoaderOptions,
@@ -370,7 +373,7 @@ const configuration: Configuration = {
           ? {
               loader: 'file-loader',
               options: {
-                name: 'assets/fonts/[name].[hash:8].[ext]',
+                name: 'assets/fonts/[name].[fullhash].[ext]',
                 limit: 10000,
                 esModule: false,
                 ...fileLoaderOptions,
@@ -410,7 +413,7 @@ const configuration: Configuration = {
   output: {
     publicPath: process.env.PUBLIC_URL,
     path: path.resolve('dist'),
-    filename: 'assets/js/[name].[hash:8].js',
+    filename: 'assets/js/[name].[fullhash].js',
   },
   target: ['web', 'es5'],
   resolve: {
