@@ -22,10 +22,10 @@
 
 import {
   Configuration,
-  WatchIgnorePlugin,
+  // WatchIgnorePlugin,
   WebpackPluginInstance,
   EnvironmentPlugin,
-  IgnorePlugin,
+  // IgnorePlugin,
   AutomaticPrefetchPlugin,
 } from 'webpack';
 import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
@@ -123,6 +123,7 @@ let devServerOptions = {
   hot: true,
   historyApiFallback: {
     disableDotRule: true,
+    index: 'index.html',
   },
   compress: true,
   open: true,
@@ -222,18 +223,17 @@ const plugins: WebpackPluginInstance[] = [
     'WDS_SOCKET_PORT',
     'WDS_SOCKET_PATH',
   ]),
-  new IgnorePlugin({
-    resourceRegExp: /^\.\/locale$/,
-    contextRegExp: /moment$/,
-  }),
-  new WatchIgnorePlugin({
-    paths: [/\.js$/, /\.d\.ts$/],
-  }),
+  // new IgnorePlugin({
+  //   resourceRegExp: /^\.\/locale$/,
+  //   contextRegExp: /moment$/,
+  // }),
+  // new WatchIgnorePlugin({
+  //   paths: [/\.js$/, /\.d\.ts$/],
+  // }),
   new HtmlWebpackPlugin({
     publicPath: process.env.PUBLIC_URL,
     inject: true,
     filename: 'index.html',
-    hash: false,
     template: path.resolve('public', 'index.html'),
     minify: true,
   }),
@@ -258,7 +258,7 @@ if (isProduction) {
       publicPath: process.env.PUBLIC_URL,
     }),
     new MiniCssExtractPlugin({
-      filename: 'assets/styles/[name].[fullhash].css',
+      filename: 'assets/styles/[name].[contenthash:8].css',
     })
   );
 } else {
@@ -335,7 +335,7 @@ const configuration: Configuration = {
           ? {
               loader: 'file-loader',
               options: {
-                name: 'assets/images/[name].[fullhash].[ext]',
+                name: 'assets/images/[name].[contenthash:8].[ext]',
                 limit: 10000,
                 esModule: false,
                 ...fileLoaderOptions,
@@ -354,7 +354,7 @@ const configuration: Configuration = {
           ? {
               loader: 'file-loader',
               options: {
-                name: 'assets/medias/[name].[fullhash].[ext]',
+                name: 'assets/medias/[name].[contenthash:8].[ext]',
                 limit: 10000,
                 esModule: false,
                 ...fileLoaderOptions,
@@ -373,7 +373,7 @@ const configuration: Configuration = {
           ? {
               loader: 'file-loader',
               options: {
-                name: 'assets/fonts/[name].[fullhash].[ext]',
+                name: 'assets/fonts/[name].[contenthash:8].[ext]',
                 limit: 10000,
                 esModule: false,
                 ...fileLoaderOptions,
@@ -413,7 +413,7 @@ const configuration: Configuration = {
   output: {
     publicPath: process.env.PUBLIC_URL,
     path: path.resolve('dist'),
-    filename: 'assets/js/[name].[fullhash].js',
+    filename: 'assets/js/[name].[contenthash:8].js',
   },
   target: ['web', 'es5'],
   resolve: {

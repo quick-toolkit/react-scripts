@@ -1,6 +1,6 @@
 {
   "name": "@quick-toolkit/react-scripts",
-  "version": "1.0.4",
+  "version": "1.0.1",
   "description": "react-scripts",
   "main": "dist",
   "types": "dist/types",
