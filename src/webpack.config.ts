@@ -42,6 +42,7 @@ import postcssNormalize from 'postcss-normalize';
 import { merge } from 'webpack-merge';
 import path from 'path';
 import fs from 'fs';
+import ignoredFiles from './ignoredFiles';
 
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -114,16 +115,24 @@ let customWebpackConfig: any;
 let devServerOptions = {
   static: {
     directory: path.resolve('public'),
+    publicPath: [process.env.PUBLIC_URL || '/'],
+    watch: {
+      ignored: ignoredFiles(path.resolve('src')),
+    },
   },
   client: {
     logging: 'none',
     progress: true,
+    overlay: {
+      errors: true,
+      warnings: false,
+    },
   },
   port: 3000,
   hot: true,
   historyApiFallback: {
     disableDotRule: true,
-    index: 'index.html',
+    index: `${process.env.PUBLIC_URL || ''}/index.html`,
   },
   compress: true,
   open: true,
