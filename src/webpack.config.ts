@@ -43,6 +43,7 @@ import { merge } from 'webpack-merge';
 import path from 'path';
 import fs from 'fs';
 import ignoredFiles from './ignoredFiles';
+import Server from 'webpack-dev-server';
 
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -95,7 +96,7 @@ const miniCssExtractPluginOptions = {
   publicPath: process.env.PUBLIC_URL,
 };
 let fileLoaderOptions = {};
-let stylelintOptions = {};
+let stylelintOptions = null;
 let eslintOptions = {
   extensions: ['js', 'mjs', 'jsx', 'ts', 'tsx'],
   formatter: require.resolve('react-dev-utils/eslintFormatter'),
@@ -112,10 +113,10 @@ let eslintOptions = {
 
 let customWebpackConfig: any;
 
-let devServerOptions = {
+let devServerOptions: Server.Configuration = {
   static: {
     directory: path.resolve('public'),
-    publicPath: [process.env.PUBLIC_URL || '/'],
+    publicPath: [process.env.PUBLIC_URL || ''],
     watch: {
       ignored: ignoredFiles(path.resolve('src')),
     },
@@ -132,7 +133,7 @@ let devServerOptions = {
   hot: true,
   historyApiFallback: {
     disableDotRule: true,
-    index: `${process.env.PUBLIC_URL || ''}/index.html`,
+    index: `${process.env.PUBLIC_URL || '/'}`,
   },
   compress: true,
   open: true,
@@ -187,14 +188,14 @@ if (fs.existsSync(path.resolve('project.config.js'))) {
  * 获取样式loaders
  * @param isModule
  */
-const getStyleLoaders = (isModule = false): any => {
+const getStyleLoaders = (isModule = false, importLoaders: number): any => {
   const cssLoader: any = {
     loader: 'css-loader',
     options: {
       modules: isModule,
       import: true,
       url: true,
-      importLoaders: isProduction ? 2 : 1,
+      importLoaders,
       ...cssLoaderOptions,
     },
   };
@@ -209,7 +210,6 @@ const getStyleLoaders = (isModule = false): any => {
 
   return isProduction
     ? [
-        'style-loader',
         {
           loader: MiniCssExtractPlugin.loader,
           options: miniCssExtractPluginOptions,
@@ -222,7 +222,6 @@ const getStyleLoaders = (isModule = false): any => {
 
 const plugins: WebpackPluginInstance[] = [
   new AutomaticPrefetchPlugin(),
-  new StylelintWebpackPlugin(stylelintOptions),
   new ESLintWebpackPlugin(eslintOptions),
   new EnvironmentPlugin([
     'NODE_ENV',
@@ -250,6 +249,10 @@ const plugins: WebpackPluginInstance[] = [
     async: !isProduction,
   }),
 ];
+
+if (stylelintOptions) {
+  plugins.push(new StylelintWebpackPlugin(stylelintOptions))
+}
 
 if (isProduction) {
   plugins.push(
@@ -291,17 +294,17 @@ const configuration: Configuration = {
   module: {
     rules: [
       {
-        test: /\.module.css$/,
-        use: getStyleLoaders(true),
+        test: /\.module.css$/i,
+        use: getStyleLoaders(true, isProduction ? 1 : 0),
       },
       {
-        test: /\.css$/,
-        use: getStyleLoaders(true),
+        test: /\.css$/i,
+        use: getStyleLoaders(false, isProduction ? 1 : 0),
       },
       {
         test: /\.module.less$/,
         use: [
-          ...getStyleLoaders(true),
+          ...getStyleLoaders(true, isProduction ? 2 : 0),
           {
             loader: 'less-loader',
             options: lessLoaderOptions,
@@ -311,7 +314,7 @@ const configuration: Configuration = {
       {
         test: /\.less$/,
         use: [
-          ...getStyleLoaders(false),
+          ...getStyleLoaders(false, isProduction ? 2 : 0),
           {
             loader: 'less-loader',
             options: lessLoaderOptions,
@@ -321,7 +324,7 @@ const configuration: Configuration = {
       {
         test: /\.module.s[ac]ss$/i,
         use: [
-          ...getStyleLoaders(true),
+          ...getStyleLoaders(true, isProduction ? 2 : 0),
           {
             loader: 'sass-loader',
             options: sassLoaderOptions,
@@ -331,7 +334,7 @@ const configuration: Configuration = {
       {
         test: /\.s[ac]ss$/i,
         use: [
-          ...getStyleLoaders(false),
+          ...getStyleLoaders(false, isProduction ? 2 : 0),
           {
             loader: 'sass-loader',
             options: sassLoaderOptions,

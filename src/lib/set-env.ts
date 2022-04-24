@@ -26,7 +26,7 @@
  */
 export function setEnv(isDev?: boolean): void {
   if (process.env.PUBLIC_URL === undefined) {
-    process.env.PUBLIC_URL = '';
+    process.env.PUBLIC_URL = '/';
   }
   if (process.env.WDS_SOCKET_HOST === undefined) {
     process.env.WDS_SOCKET_HOST = '';
