@@ -23,7 +23,7 @@
 
 import 'reflect-metadata';
 import ora from 'ora';
-import { fork } from "child_process";
+import { spawn } from 'child_process';
 import { program } from 'commander';
 import chalk from 'chalk';
 import path from 'path';
@@ -39,25 +39,31 @@ program.version(PACKAGE.version as string, '-v, --version');
 
 program
   .command('start')
-  .allowExcessArguments(true)
-  .allowUnknownOption(true)
   .description('Start react app')
-  .action(() => {
+  .option('-M, --max_old_space_size [size]', 'memory limit', '4096')
+  .action((option: {max_old_space_size: string}) => {
     require('dotenv').config();
     setEnv(true);
-    const cp =fork(path.join(__dirname, '../', 'lib', 'start'), {
-      execArgv: ['--max_old_space_size=4096'],
-    });
-
-    if (cp.stdout){
-      cp.stdout.pipe(process.stdout)
+    const size = Number(option.max_old_space_size);
+    if (isNaN(size)) {
+      throw new TypeError('The option "max_old_space_size" argument is a number type.')
     }
+    if (size <= 0) {
+      throw new TypeError('The option "max_old_space_size" argument must be gt 0.')
+    }
+    if (size % 1024 !== 0) {
+      throw new TypeError('The option "max_old_space_size" argument must be multiple of 1024.')
+    }
+    spawn('node', [
+      path.join(__dirname, '../', 'lib', 'start.js'),
+      `--max_old_space_size=${size}`
+    ], {
+      stdio: 'inherit'
+    })
   });
 
 program
   .command('build')
-  .allowExcessArguments(true)
-  .allowUnknownOption(true)
   .description('Build react app')
   .action(() => {
     require('dotenv').config();
@@ -83,7 +89,7 @@ program
           type: 'confirm',
           name: 'isInstall',
           message: 'Is install dependencies ?',
-          default: true,
+          default: true
         });
         if (isInstall) {
           const { select } = await inquirer.prompt<{ select: string }>({
@@ -91,7 +97,7 @@ program
             message: 'Select package manager.',
             choices: ['use yarn', 'use npm'],
             default: 0,
-            name: 'select',
+            name: 'select'
           });
           try {
             await install(select === 'use yarn' ? 'yarn' : 'npm', projectName);

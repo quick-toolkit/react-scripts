@@ -40,7 +40,11 @@ export function setEnv(isDev?: boolean): void {
   }
 
   if (process.env.APP_RUNTIME_ENV === undefined) {
-    process.env.APP_RUNTIME_ENV = undefined;
+    process.env.APP_RUNTIME_ENV = '';
+  }
+
+  if (process.env.MAX_OLD_SPACE_SIZE === undefined) {
+    process.env.MAX_OLD_SPACE_SIZE = '4096'
   }
 
   process.env.NODE_ENV = isDev ? 'development' : 'production';

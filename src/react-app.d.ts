@@ -7,6 +7,11 @@ declare global {
     interface ProcessEnv {
       readonly NODE_ENV: 'development' | 'production' | 'test';
       readonly PUBLIC_URL: string;
+      readonly WDS_SOCKET_HOST: string;
+      readonly WDS_SOCKET_PORT: string;
+      readonly WDS_SOCKET_PATH: string;
+      readonly APP_RUNTIME_ENV: string;
+      readonly MAX_OLD_SPACE_SIZE: number;
     }
   }
   declare module '*.avif' {
