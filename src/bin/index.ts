@@ -23,12 +23,12 @@
 
 import 'reflect-metadata';
 import ora from 'ora';
+import { fork } from "child_process";
 import { program } from 'commander';
 import chalk from 'chalk';
 import path from 'path';
 import inquirer from 'inquirer';
 import download from 'download-git-repo';
-import { start } from '../lib/start';
 import { build } from '../lib/build';
 import { setEnv } from '../lib/set-env';
 import { install } from '../lib/install';
@@ -43,7 +43,13 @@ program
   .action(() => {
     require('dotenv').config();
     setEnv(true);
-    start();
+    const cp =fork(path.join(__dirname, '../', 'lib', 'start'), {
+      execArgv: ['--max_old_space_size=4096'],
+    });
+
+    if (cp.stdout){
+      cp.stdout.pipe(process.stdout)
+    }
   });
 
 program

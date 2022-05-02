@@ -28,59 +28,56 @@ import { clearConsole } from './clear-console';
 import ip from 'ip';
 
 const isInteractive = process.stdout.isTTY;
-/**
- * 开始编译
- */
-export function start(): void {
-  const { webpackConfig, devServer } = require('../webpack.config');
-  const compiler = webpack(webpackConfig as Configuration);
-  compiler.hooks.invalid.tap('invalid', () => {
-    if (isInteractive) {
-      clearConsole();
+
+
+const { webpackConfig, devServer } = require('../webpack.config');
+const compiler = webpack(webpackConfig as Configuration);
+compiler.hooks.invalid.tap('invalid', () => {
+  if (isInteractive) {
+    clearConsole();
+  }
+});
+
+compiler.hooks.beforeCompile.tap('beforeCompile', () => {
+  if (isInteractive) {
+    clearConsole();
+    console.log('Compiling...');
+  }
+});
+
+const server = new Server(devServer as Server.Configuration, compiler);
+
+const port = server.options.port || 3000;
+const protocol: string =
+  (server.options.server || ({ type: 'http' } as any)).type || 'http';
+const address = ip.address();
+
+const PACK = require(path.resolve('package.json'));
+compiler.hooks.done.tap('done', (stats) => {
+  if (isInteractive) {
+    clearConsole();
+    if (!stats.hasErrors() && !stats.hasWarnings()) {
+      console.log(chalk.green('Compiled successfully!'));
+      console.log(`You can now view ${PACK.name} in the browser.\n`);
+      console.log(`Local:            ${protocol}://localhost:${port}`);
+      console.log(`On Your Network:  ${protocol}://${address}:${port}\n`);
+      console.log('Note that the development build is not optimized.');
+      console.log(
+        `To create a production build, use ${chalk.cyan('yarn build.')}`
+      );
+    } else {
+      console.log(
+        stats.toString({
+          all: false,
+          errors: true,
+          warnings: true,
+          colors: true,
+        })
+      );
     }
-  });
+  }
+});
 
-  compiler.hooks.beforeCompile.tap('beforeCompile', () => {
-    if (isInteractive) {
-      clearConsole();
-      console.log('Compiling...');
-    }
-  });
-
-  const server = new Server(devServer as Server.Configuration, compiler);
-
-  const port = server.options.port || 3000;
-  const protocol: string =
-    (server.options.server || ({ type: 'http' } as any)).type || 'http';
-  const address = ip.address();
-
-  const PACK = require(path.resolve('package.json'));
-  compiler.hooks.done.tap('done', (stats) => {
-    if (isInteractive) {
-      clearConsole();
-      if (!stats.hasErrors() && !stats.hasWarnings()) {
-        console.log(chalk.green('Compiled successfully!'));
-        console.log(`You can now view ${PACK.name} in the browser.\n`);
-        console.log(`Local:            ${protocol}://localhost:${port}`);
-        console.log(`On Your Network:  ${protocol}://${address}:${port}\n`);
-        console.log('Note that the development build is not optimized.');
-        console.log(
-          `To create a production build, use ${chalk.cyan('yarn build.')}`
-        );
-      } else {
-        console.log(
-          stats.toString({
-            all: false,
-            errors: true,
-            warnings: true,
-            colors: true,
-          })
-        );
-      }
-    }
-  });
-
-  server.startCallback(() => {
-    console.log(chalk.cyan('Starting the development server...\n'));
-  });
-}
+server.startCallback(() => {
+  console.log(chalk.cyan('Starting the development server...\n'));
+});
