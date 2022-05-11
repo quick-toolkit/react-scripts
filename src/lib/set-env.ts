@@ -28,6 +28,9 @@ export function setEnv(isDev?: boolean): void {
   if (process.env.PUBLIC_URL === undefined) {
     process.env.PUBLIC_URL = '/';
   }
+  if (process.env.HOST === undefined) {
+    process.env.HOST = '0.0.0.0';
+  }
   if (process.env.WDS_SOCKET_HOST === undefined) {
     process.env.WDS_SOCKET_HOST = '';
   }
@@ -36,7 +39,7 @@ export function setEnv(isDev?: boolean): void {
   }
 
   if (process.env.WDS_SOCKET_PATH === undefined) {
-    process.env.WDS_SOCKET_PATH = '';
+    process.env.WDS_SOCKET_PATH = '/ws';
   }
 
   if (process.env.APP_RUNTIME_ENV === undefined) {

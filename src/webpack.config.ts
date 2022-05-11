@@ -54,6 +54,10 @@ const reactRefreshOverlayEntry = require.resolve(
   'react-dev-utils/refreshOverlayInterop'
 );
 
+const evalSourceMapMiddleware = require('react-dev-utils/evalSourceMapMiddleware');
+const noopServiceWorkerMiddleware = require('react-dev-utils/noopServiceWorkerMiddleware');
+const redirectServedPath = require('react-dev-utils/redirectServedPathMiddleware');
+
 let babelLoaderOptions = {
   presets: ['@babel/preset-env', '@babel/preset-react'],
   plugins: isProduction ? undefined : [require.resolve('react-refresh/babel')],
@@ -134,6 +138,17 @@ let devServerOptions: Server.Configuration = {
   historyApiFallback: {
     disableDotRule: true,
     index: `${process.env.PUBLIC_URL || '/'}`,
+  },
+  onBeforeSetupMiddleware(devServer) {
+    if (devServer.app) {
+      devServer.app.use(evalSourceMapMiddleware(devServer));
+    }
+  },
+  onAfterSetupMiddleware(devServer) {
+    if (devServer.app) {
+      devServer.app.use(redirectServedPath(process.env.PUBLIC_URL || '/'));
+      devServer.app.use(noopServiceWorkerMiddleware(process.env.PUBLIC_URL || '/'));
+    }
   },
   compress: true,
   open: true,
@@ -247,6 +262,39 @@ const plugins: WebpackPluginInstance[] = [
   }),
   new ForkTsCheckerWebpackPlugin({
     async: !isProduction,
+    typescript: {
+      configOverwrite: {
+        compilerOptions: {
+          sourceMap: !isProduction,
+          skipLibCheck: true,
+          inlineSourceMap: false,
+          declarationMap: false,
+          noEmit: true,
+          incremental: true,
+          tsBuildInfoFile: path.resolve(),
+        },
+      },
+      context: path.resolve(),
+      diagnosticOptions: {
+        syntactic: true,
+      },
+      mode: 'write-references',
+    },
+    issue: {
+      include: [
+        { file: '../**/src/**/*.{ts,tsx}' },
+        { file: '**/src/**/*.{ts,tsx}' },
+      ],
+      exclude: [
+        { file: '**/src/**/__tests__/**' },
+        { file: '**/src/**/?(*.){spec|test}.*' },
+        { file: '**/src/setupProxy.*' },
+        { file: '**/src/setupTests.*' },
+      ],
+    },
+    logger: {
+      infrastructure: 'silent',
+    },
   }),
 ];
 
