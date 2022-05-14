@@ -37,7 +37,6 @@ compiler.hooks.invalid.tap('invalid', () => {
     clearConsole();
   }
 });
-
 compiler.hooks.beforeCompile.tap('beforeCompile', () => {
   if (isInteractive) {
     clearConsole();

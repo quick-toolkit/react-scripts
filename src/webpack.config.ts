@@ -61,6 +61,14 @@ const redirectServedPath = require('react-dev-utils/redirectServedPathMiddleware
 let babelLoaderOptions = {
   presets: ['@babel/preset-env', '@babel/preset-react'],
   plugins: isProduction ? undefined : [require.resolve('react-refresh/babel')],
+  cacheDirectory: true,
+  cacheCompression: false,
+  exclude: [
+    // \\ for Windows, / for macOS and Linux
+    /node_modules[\\/]core-js/,
+    /node_modules[\\/]webpack[\\/]buildin/,
+  ],
+  compact: isProduction,
 };
 let tsLoaderOptions = {
   // disable type checker - we will use it in fork plugin
@@ -469,6 +477,11 @@ const configuration: Configuration = {
         ],
       },
     ],
+  },
+  cache: {
+    type: 'filesystem',
+    compression: 'gzip',
+    store: 'pack',
   },
   output: {
     publicPath: process.env.PUBLIC_URL,
