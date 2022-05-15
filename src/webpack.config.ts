@@ -147,19 +147,14 @@ let devServerOptions: Server.Configuration = {
     disableDotRule: true,
     index: `${process.env.PUBLIC_URL || '/'}`,
   },
-  onBeforeSetupMiddleware(devServer) {
-    if (devServer.app) {
-      devServer.app.use(evalSourceMapMiddleware(devServer));
-    }
-  },
-  onAfterSetupMiddleware(devServer) {
-    if (devServer.app) {
-      devServer.app.use(redirectServedPath(process.env.PUBLIC_URL || '/'));
-      devServer.app.use(noopServiceWorkerMiddleware(process.env.PUBLIC_URL || '/'));
-    }
+  setupMiddlewares: (middlewares, devServer) => {
+    middlewares.unshift(evalSourceMapMiddleware(devServer))
+    middlewares.push(redirectServedPath(process.env.PUBLIC_URL || '/'));
+    middlewares.push(noopServiceWorkerMiddleware(process.env.PUBLIC_URL || '/'))
+    return middlewares;
   },
   compress: true,
-  open: true,
+  open: false,
 };
 
 if (fs.existsSync(path.resolve('project.config.js'))) {
@@ -210,6 +205,7 @@ if (fs.existsSync(path.resolve('project.config.js'))) {
 /**
  * 获取样式loaders
  * @param isModule
+ * @param importLoaders
  */
 const getStyleLoaders = (isModule = false, importLoaders: number): any => {
   const cssLoader: any = {
@@ -327,6 +323,7 @@ if (isProduction) {
     }),
     new MiniCssExtractPlugin({
       filename: 'assets/styles/[name].[contenthash:8].css',
+      ignoreOrder: isProduction,
     })
   );
 } else {
@@ -360,7 +357,7 @@ const configuration: Configuration = {
       {
         test: /\.module.less$/,
         use: [
-          ...getStyleLoaders(true, isProduction ? 2 : 0),
+          ...getStyleLoaders(true, isProduction ? 1 : 0),
           {
             loader: 'less-loader',
             options: lessLoaderOptions,
@@ -370,7 +367,7 @@ const configuration: Configuration = {
       {
         test: /\.less$/,
         use: [
-          ...getStyleLoaders(false, isProduction ? 2 : 0),
+          ...getStyleLoaders(false, isProduction ? 1 : 0),
           {
             loader: 'less-loader',
             options: lessLoaderOptions,
@@ -523,6 +520,6 @@ const configuration: Configuration = {
 
 export const devServer = devServerOptions;
 
-export const webpackConfig = customWebpackConfig
+export const webpackConfig: Configuration = customWebpackConfig
   ? merge(configuration, customWebpackConfig)
   : configuration;
