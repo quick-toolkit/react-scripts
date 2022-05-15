@@ -29,6 +29,8 @@ import ip from 'ip';
 
 const isInteractive = process.stdout.isTTY;
 
+const openBrowser = require('react-dev-utils/openBrowser');
+
 
 const { webpackConfig, devServer } = require('../webpack.config');
 const compiler = webpack(webpackConfig as Configuration);
@@ -47,6 +49,7 @@ compiler.hooks.beforeCompile.tap('beforeCompile', () => {
 const server = new Server(devServer as Server.Configuration, compiler);
 
 const port = server.options.port || 3000;
+server.options.open = false;
 const protocol: string =
   (server.options.server || ({ type: 'http' } as any)).type || 'http';
 const address = ip.address();
@@ -79,4 +82,5 @@ compiler.hooks.done.tap('done', (stats) => {
 
 server.startCallback(() => {
   console.log(chalk.cyan('Starting the development server...\n'));
+  openBrowser(`${protocol}://localhost:${port}`);
 });
