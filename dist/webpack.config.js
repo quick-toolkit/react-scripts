@@ -447,7 +447,7 @@ const configuration = {
     },
     cache: {
         type: 'filesystem',
-        compression: 'gzip',
+        compression: false,
         store: 'pack',
     },
     output: {

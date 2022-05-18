@@ -23,11 +23,10 @@
 import { Configuration, webpack } from 'webpack';
 import rimraf from 'rimraf';
 import path from 'path';
-import fs from 'fs';
 import { webpackConfig } from '../webpack.config';
+import { DIST_DIR, PACKAGE_DIR } from './constants';
+import { copy } from './copy';
 
-const PACKAGE_DIR = path.resolve('node_modules');
-const DIST_DIR = path.resolve('public', 'npm');
 
 /**
  * build
@@ -35,29 +34,15 @@ const DIST_DIR = path.resolve('public', 'npm');
 export function build(): void {
   rimraf.sync(path.resolve('dist'));
   const { webpackConfig } = require('../webpack.config');
-  if (webpackConfig && webpackConfig.externals) {
-    try {
-      const strings = Object.keys(webpackConfig.externals);
-      if (strings.length) {
-        console.log(`Copy node_modules externals to public.`);
-        strings.forEach((name) => {
-          const pack = path.join(PACKAGE_DIR, name);
-          const dest = path.join(DIST_DIR, name);
-          if (fs.existsSync(pack)) {
-            const pa = path.join(pack, 'package.json');
-            const pb = path.join(dest, 'package.json')
-            if (fs.existsSync(pa) && fs.existsSync(pb)) {
-              if (require(pa).version !== require(pb).version) {
-                copy(pack, dest);
-              }
-            }
-          } else {
-            copy(pack, dest);
-          }
-        });
+  if (webpackConfig) {
+    if (webpackConfig.externals) {
+      try {
+        console.log(`Copy externals files from ${PACKAGE_DIR} to ${DIST_DIR}`);
+        const strings = Object.keys(webpackConfig.externals);
+        copy(PACKAGE_DIR, strings, DIST_DIR);
+      } catch (e) {
+        console.error(e);
       }
-    } catch (e) {
-      console.error(e);
     }
   }
   const compiler = webpack(webpackConfig as Configuration);
@@ -75,30 +60,4 @@ export function build(): void {
       );
     }
   });
-}
-
-// 排除的文件名称
-const EXCLUDES = [/^\./,/\.d.ts$/i, /^(LICENSE|example|node_modules|test|bin)$/i, /\.(md|text|yml)$/i, /\.(mp4|webm|ogg|mp3|wav|flac|aac)(\?.*)?$/i,  /\.(png|jpe?g|gif|svg|bmp|webp)(\?.*)?$/i];
-
-/**
- * 递归复制目录
- * @param target 目标文件/目录
- * @param dist 存储目录
- */
-function copy(target: string, dist: string) {
-  const stat = fs.statSync(target);
-  if (stat.isDirectory()) {
-    if (!EXCLUDES.find(x => x.test(target))) {
-      // 创建目录
-      fs.mkdirSync(target);
-      var strings = fs.readdirSync(target);
-      strings.map(x => {
-        const dir = path.join(target, x);
-        const distDir = path.join(dist, x);
-        copy(dir, distDir);
-      });
-    }
-  } else if (stat.isFile()) {
-    fs.copyFileSync(target, dist);
-  }
 }

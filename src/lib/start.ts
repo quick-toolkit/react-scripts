@@ -26,6 +26,8 @@ import path from 'path';
 import chalk from 'chalk';
 import { clearConsole } from './clear-console';
 import ip from 'ip';
+import { DIST_DIR, PACKAGE_DIR } from './constants';
+import { copy } from './copy';
 
 const isInteractive = process.stdout.isTTY;
 
@@ -45,6 +47,18 @@ compiler.hooks.beforeCompile.tap('beforeCompile', () => {
     console.log('Compiling...');
   }
 });
+
+if (webpackConfig) {
+  if (webpackConfig.externals) {
+    try {
+      console.log(`Copy externals files from ${PACKAGE_DIR} to ${DIST_DIR}`);
+      const strings = Object.keys(webpackConfig.externals);
+      copy(PACKAGE_DIR, strings, DIST_DIR);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+}
 
 const server = new Server(devServer as Server.Configuration, compiler);
 

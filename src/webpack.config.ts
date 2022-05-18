@@ -477,7 +477,7 @@ const configuration: Configuration = {
   },
   cache: {
     type: 'filesystem',
-    compression: 'gzip',
+    compression: false,
     store: 'pack',
   },
   output: {

@@ -28,40 +28,24 @@ exports.build = void 0;
 const webpack_1 = require("webpack");
 const rimraf_1 = __importDefault(require("rimraf"));
 const path_1 = __importDefault(require("path"));
-const fs_1 = __importDefault(require("fs"));
-const PACKAGE_DIR = path_1.default.resolve('node_modules');
-const DIST_DIR = path_1.default.resolve('public', 'npm');
+const constants_1 = require("./constants");
+const copy_1 = require("./copy");
 /**
  * build
  */
 function build() {
     rimraf_1.default.sync(path_1.default.resolve('dist'));
     const { webpackConfig } = require('../webpack.config');
-    if (webpackConfig && webpackConfig.externals) {
-        try {
-            const strings = Object.keys(webpackConfig.externals);
-            if (strings.length) {
-                console.log(`Copy node_modules externals to public.`);
-                strings.forEach((name) => {
-                    const pack = path_1.default.join(PACKAGE_DIR, name);
-                    const dest = path_1.default.join(DIST_DIR, name);
-                    if (fs_1.default.existsSync(pack)) {
-                        const pa = path_1.default.join(pack, 'package.json');
-                        const pb = path_1.default.join(dest, 'package.json');
-                        if (fs_1.default.existsSync(pa) && fs_1.default.existsSync(pb)) {
-                            if (require(pa).version !== require(pb).version) {
-                                copy(pack, dest);
-                            }
-                        }
-                    }
-                    else {
-                        copy(pack, dest);
-                    }
-                });
+    if (webpackConfig) {
+        if (webpackConfig.externals) {
+            try {
+                console.log(`Copy externals files from ${constants_1.PACKAGE_DIR} to ${constants_1.DIST_DIR}`);
+                const strings = Object.keys(webpackConfig.externals);
+                (0, copy_1.copy)(constants_1.PACKAGE_DIR, strings, constants_1.DIST_DIR);
             }
-        }
-        catch (e) {
-            console.error(e);
+            catch (e) {
+                console.error(e);
+            }
         }
     }
     const compiler = (0, webpack_1.webpack)(webpackConfig);
@@ -80,28 +64,3 @@ function build() {
     });
 }
 exports.build = build;
-// 排除的文件名称
-const EXCLUDES = [/^\./, /\.d.ts$/i, /^(LICENSE|example|node_modules|test|bin)$/i, /\.(md|text|yml)$/i, /\.(mp4|webm|ogg|mp3|wav|flac|aac)(\?.*)?$/i, /\.(png|jpe?g|gif|svg|bmp|webp)(\?.*)?$/i];
-/**
- * 递归复制目录
- * @param target 目标文件/目录
- * @param dist 存储目录
- */
-function copy(target, dist) {
-    const stat = fs_1.default.statSync(target);
-    if (stat.isDirectory()) {
-        if (!EXCLUDES.find(x => x.test(target))) {
-            // 创建目录
-            fs_1.default.mkdirSync(target);
-            var strings = fs_1.default.readdirSync(target);
-            strings.map(x => {
-                const dir = path_1.default.join(target, x);
-                const distDir = path_1.default.join(dist, x);
-                copy(dir, distDir);
-            });
-        }
-    }
-    else if (stat.isFile()) {
-        fs_1.default.copyFileSync(target, dist);
-    }
-}
