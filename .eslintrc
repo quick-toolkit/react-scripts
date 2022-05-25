@@ -20,7 +20,6 @@
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:@typescript-eslint/recommended-requiring-type-checking",
-    "react-app",
     "prettier"
   ],
   "rules": {
@@ -67,6 +66,7 @@
     "@typescript-eslint/no-implied-eval": "error",
     "@typescript-eslint/no-loop-func": "error",
     "@typescript-eslint/no-loss-of-precision": "error",
+    "@typescript-eslint/no-unsafe-argument": "off",
     "@typescript-eslint/object-curly-spacing": "off",
     "@typescript-eslint/no-unsafe-member-access": "off",
     "@typescript-eslint/no-unsafe-return": "off",

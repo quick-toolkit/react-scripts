@@ -58,7 +58,7 @@ function build() {
                 all: false,
                 builtAt: true,
                 warnings: true,
-                errors: true
+                errors: true,
             }));
         }
     });

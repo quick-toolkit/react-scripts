@@ -32,6 +32,7 @@ import download from 'download-git-repo';
 import { build } from '../lib/build';
 import { setEnv } from '../lib/set-env';
 import { install } from '../lib/install';
+import { swaggerGenerator } from '../lib/swagger-generator';
 
 const PACKAGE = require(path.join(__dirname, '../', '../', 'package.json'));
 
@@ -41,25 +42,43 @@ program
   .command('start')
   .description('Start react app')
   .option('-M, --max_old_space_size [size]', 'memory limit', '4096')
-  .action((option: {max_old_space_size: string}) => {
+  .action((option: { max_old_space_size: string }) => {
     require('dotenv').config();
     setEnv(true);
     const size = Number(option.max_old_space_size);
     if (isNaN(size)) {
-      throw new TypeError('The option "max_old_space_size" argument is a number type.')
+      throw new TypeError(
+        'The option "max_old_space_size" argument is a number type.'
+      );
     }
     if (size <= 0) {
-      throw new TypeError('The option "max_old_space_size" argument must be gt 0.')
+      throw new TypeError(
+        'The option "max_old_space_size" argument must be gt 0.'
+      );
     }
     if (size % 1024 !== 0) {
-      throw new TypeError('The option "max_old_space_size" argument must be multiple of 1024.')
+      throw new TypeError(
+        'The option "max_old_space_size" argument must be multiple of 1024.'
+      );
     }
-    spawn('node', [
-      path.join(__dirname, '../', 'lib', 'start.js'),
-      `--max_old_space_size=${size}`
-    ], {
-      stdio: 'inherit'
-    })
+
+    spawn(
+      'node',
+      [
+        path.join(__dirname, '../', 'lib', 'start.js'),
+        `--max_old_space_size=${size}`,
+      ],
+      {
+        stdio: 'inherit',
+      }
+    );
+  });
+
+program
+  .command('swagger-generator')
+  .description('Build swagger docs')
+  .action(() => {
+    swaggerGenerator();
   });
 
 program
@@ -79,7 +98,7 @@ program
     download(
       'quick-toolkit/react-app-template',
       path.resolve(projectName),
-      async (err) => {
+      async (err: Error) => {
         if (err) {
           spinner.fail(err.message);
           throw err;
@@ -89,7 +108,7 @@ program
           type: 'confirm',
           name: 'isInstall',
           message: 'Is install dependencies ?',
-          default: true
+          default: true,
         });
         if (isInstall) {
           const { select } = await inquirer.prompt<{ select: string }>({
@@ -97,7 +116,7 @@ program
             message: 'Select package manager.',
             choices: ['use yarn', 'use npm'],
             default: 0,
-            name: 'select'
+            name: 'select',
           });
           try {
             await install(select === 'use yarn' ? 'yarn' : 'npm', projectName);

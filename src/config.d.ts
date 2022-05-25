@@ -34,12 +34,48 @@ declare interface CustomConfig {
   styleLint?: {};
   file?: {};
   devServer?: {};
+  swaggers?: Swagger[];
 }
 
-declare module 'download-git-repo' {
-  export default function download(
-    repoPath: string,
-    localPath: string,
-    callback?: (e: Error) => void | Promise<void>
-  ): void;
+declare interface Swagger {
+  /**
+   * Swagger openapi 地址
+   */
+  url: string;
+  outputs: SwaggerGenerator[];
+}
+
+declare interface SwaggerGenerator {
+  /**
+   * 生成文件存储的目录
+   */
+  dest: string;
+  dtos: SwaggerGeneratorDto[];
+  vos: SwaggerGeneratorVo[];
+}
+
+declare interface SwaggerGeneratorDto {
+  /**
+   * 对应的path
+   */
+  path: string;
+  /**
+   * 对应的method
+   */
+  method: string;
+  /**
+   * 输出的名称
+   */
+  name?: string;
+}
+
+declare interface SwaggerGeneratorVo {
+  /**
+   * 目标模型
+   */
+  target: string;
+  /**
+   * 生成的名称
+   */
+  name?: string;
 }

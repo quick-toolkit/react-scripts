@@ -187,7 +187,7 @@ if (fs_1.default.existsSync(path_1.default.resolve('project.config.js'))) {
  * @param isModule
  * @param importLoaders
  */
-const getStyleLoaders = (isModule = false, importLoaders) => {
+const getStyleLoaders = (isModule = false, importLoaders = 0) => {
     const cssLoader = {
         loader: 'css-loader',
         options: {

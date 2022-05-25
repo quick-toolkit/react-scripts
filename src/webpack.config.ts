@@ -148,9 +148,11 @@ let devServerOptions: Server.Configuration = {
     index: `${process.env.PUBLIC_URL || '/'}`,
   },
   setupMiddlewares: (middlewares, devServer) => {
-    middlewares.unshift(evalSourceMapMiddleware(devServer))
+    middlewares.unshift(evalSourceMapMiddleware(devServer));
     middlewares.push(redirectServedPath(process.env.PUBLIC_URL || '/'));
-    middlewares.push(noopServiceWorkerMiddleware(process.env.PUBLIC_URL || '/'))
+    middlewares.push(
+      noopServiceWorkerMiddleware(process.env.PUBLIC_URL || '/')
+    );
     return middlewares;
   },
   compress: true,
@@ -207,7 +209,7 @@ if (fs.existsSync(path.resolve('project.config.js'))) {
  * @param isModule
  * @param importLoaders
  */
-const getStyleLoaders = (isModule = false, importLoaders: number): any => {
+const getStyleLoaders = (isModule = false, importLoaders = 0): any => {
   const cssLoader: any = {
     loader: 'css-loader',
     options: {
@@ -303,7 +305,7 @@ const plugins: WebpackPluginInstance[] = [
 ];
 
 if (stylelintOptions) {
-  plugins.push(new StylelintWebpackPlugin(stylelintOptions))
+  plugins.push(new StylelintWebpackPlugin(stylelintOptions));
 }
 
 if (isProduction) {

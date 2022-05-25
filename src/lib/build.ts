@@ -27,7 +27,6 @@ import { webpackConfig } from '../webpack.config';
 import { DIST_DIR, PACKAGE_DIR } from './constants';
 import { copy } from './copy';
 
-
 /**
  * build
  */
@@ -55,7 +54,7 @@ export function build(): void {
           all: false,
           builtAt: true,
           warnings: true,
-          errors: true
+          errors: true,
         })
       );
     }

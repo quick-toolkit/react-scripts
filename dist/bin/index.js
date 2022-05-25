@@ -36,6 +36,7 @@ const download_git_repo_1 = __importDefault(require("download-git-repo"));
 const build_1 = require("../lib/build");
 const set_env_1 = require("../lib/set-env");
 const install_1 = require("../lib/install");
+const swagger_generator_1 = require("../lib/swagger-generator");
 const PACKAGE = require(path_1.default.join(__dirname, '../', '../', 'package.json'));
 commander_1.program.version(PACKAGE.version, '-v, --version');
 commander_1.program
@@ -57,10 +58,16 @@ commander_1.program
     }
     (0, child_process_1.spawn)('node', [
         path_1.default.join(__dirname, '../', 'lib', 'start.js'),
-        `--max_old_space_size=${size}`
+        `--max_old_space_size=${size}`,
     ], {
-        stdio: 'inherit'
+        stdio: 'inherit',
     });
+});
+commander_1.program
+    .command('swagger-generator')
+    .description('Build swagger docs')
+    .action(() => {
+    (0, swagger_generator_1.swaggerGenerator)();
 });
 commander_1.program
     .command('build')
@@ -85,7 +92,7 @@ commander_1.program
             type: 'confirm',
             name: 'isInstall',
             message: 'Is install dependencies ?',
-            default: true
+            default: true,
         });
         if (isInstall) {
             const { select } = await inquirer_1.default.prompt({
@@ -93,7 +100,7 @@ commander_1.program
                 message: 'Select package manager.',
                 choices: ['use yarn', 'use npm'],
                 default: 0,
-                name: 'select'
+                name: 'select',
             });
             try {
                 await (0, install_1.install)(select === 'use yarn' ? 'yarn' : 'npm', projectName);
