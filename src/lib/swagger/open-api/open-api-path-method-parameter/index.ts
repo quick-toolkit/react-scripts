@@ -55,6 +55,19 @@ export class OpenApiPathMethodParameter {
   }
 
   /**
+   * 获取类型
+   */
+  public getType(): string | undefined {
+    if (this.type) {
+      return this.type;
+    }
+
+    if (this.schema && this.schema.type) {
+      return this.schema.type;
+    }
+  }
+
+  /**
    * docrators
    */
   public createDecorators(info: OpenApiPathMethodInfo): Decorator[] {
@@ -93,7 +106,7 @@ export class OpenApiPathMethodParameter {
                 ),
                 factory.createPropertyAssignment(
                   factory.createIdentifier('type'),
-                  factory.createStringLiteral(this.type)
+                  factory.createStringLiteral(this.getType() || '')
                 ),
                 ...assignmenets,
               ],
@@ -277,7 +290,7 @@ export class OpenApiPathMethodParameter {
    * @param name
    */
   public createTypeNode(name?: string): TypeNode {
-    switch (this.type) {
+    switch (this.getType()) {
       case 'array':
         return factory.createArrayTypeNode(
           name

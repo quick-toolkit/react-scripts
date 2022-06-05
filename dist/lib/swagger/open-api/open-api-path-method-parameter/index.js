@@ -34,6 +34,17 @@ class OpenApiPathMethodParameter {
         return Boolean(this.type) || Boolean(this.items) || Boolean(this.schema);
     }
     /**
+     * 获取类型
+     */
+    getType() {
+        if (this.type) {
+            return this.type;
+        }
+        if (this.schema && this.schema.type) {
+            return this.schema.type;
+        }
+    }
+    /**
      * docrators
      */
     createDecorators(info) {
@@ -48,7 +59,7 @@ class OpenApiPathMethodParameter {
                     typescript_1.factory.createPropertyAssignment(typescript_1.factory.createIdentifier('required'), this.required ? typescript_1.factory.createTrue() : typescript_1.factory.createFalse()),
                     typescript_1.factory.createPropertyAssignment(typescript_1.factory.createIdentifier('description'), typescript_1.factory.createStringLiteral(this.description)),
                     typescript_1.factory.createPropertyAssignment(typescript_1.factory.createIdentifier('in'), typescript_1.factory.createStringLiteral(this.in)),
-                    typescript_1.factory.createPropertyAssignment(typescript_1.factory.createIdentifier('type'), typescript_1.factory.createStringLiteral(this.type)),
+                    typescript_1.factory.createPropertyAssignment(typescript_1.factory.createIdentifier('type'), typescript_1.factory.createStringLiteral(this.getType() || '')),
                     ...assignmenets,
                 ], true),
             ])),
@@ -162,7 +173,7 @@ class OpenApiPathMethodParameter {
      * @param name
      */
     createTypeNode(name) {
-        switch (this.type) {
+        switch (this.getType()) {
             case 'array':
                 return typescript_1.factory.createArrayTypeNode(name
                     ? typescript_1.factory.createTypeReferenceNode(typescript_1.factory.createIdentifier(name), undefined)
