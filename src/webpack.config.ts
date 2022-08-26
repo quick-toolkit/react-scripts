@@ -477,7 +477,7 @@ const configuration: Configuration = {
       },
       {
         test: /\.m?jsx?$/,
-        exclude: /(node_modules|bower_components)/,
+        exclude: !isProduction ? /(node_modules|bower_components)/ : undefined,
         use: {
           loader: 'babel-loader',
           options: babelLoaderOptions,
