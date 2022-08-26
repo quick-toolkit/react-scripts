@@ -69,10 +69,8 @@ let babelLoaderOptions = {
         [
           '@babel/plugin-transform-runtime',
           {
-            absoluteRuntime: false,
-            corejs: false,
-            helpers: true,
-            regenerator: true,
+            corejs: 3,
+            version: '^7.18.9',
           },
         ],
         ['@babel/plugin-proposal-decorators', { legacy: true }],
