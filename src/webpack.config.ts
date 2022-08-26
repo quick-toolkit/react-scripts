@@ -59,8 +59,22 @@ const noopServiceWorkerMiddleware = require('react-dev-utils/noopServiceWorkerMi
 const redirectServedPath = require('react-dev-utils/redirectServedPathMiddleware');
 
 let babelLoaderOptions = {
-  presets: ['@babel/preset-env', '@babel/preset-react'],
-  plugins: isProduction ? undefined : [require.resolve('react-refresh/babel')],
+  presets: [
+    '@babel/preset-env',
+    '@babel/preset-react',
+    '@babel/preset-typescript',
+  ],
+  plugins: isProduction
+    ? [
+        ['@babel/plugin-proposal-decorators', { legacy: true }],
+        '@babel/plugin-proposal-class-properties',
+      ]
+    : [
+        '@babel/plugin-transform-runtime',
+        require.resolve('react-refresh/babel'),
+        ['@babel/plugin-proposal-decorators', { legacy: true }],
+        '@babel/plugin-proposal-class-properties',
+      ],
   cacheDirectory: true,
   cacheCompression: false,
   exclude: [
@@ -70,12 +84,14 @@ let babelLoaderOptions = {
   ],
   compact: isProduction,
 };
-let tsLoaderOptions = {
-  // disable type checker - we will use it in fork plugin
-  transpileOnly: true,
-  allowTsInNodeModules: true,
-  configFile: path.resolve('tsconfig.json'),
-};
+
+// const tsLoaderOptions = {
+//   // disable type checker - we will use it in fork plugin
+//   transpileOnly: true,
+//   allowTsInNodeModules: true,
+//   configFile: path.resolve('tsconfig.json'),
+// };
+
 let cssLoaderOptions = {
   sourceMap: !isProduction,
 };
@@ -167,9 +183,9 @@ if (fs.existsSync(path.resolve('project.config.js'))) {
   if (config.babel) {
     babelLoaderOptions = Object.assign(babelLoaderOptions, config.babel);
   }
-  if (config.ts) {
-    tsLoaderOptions = Object.assign(tsLoaderOptions, config.ts);
-  }
+  // if (config.ts) {
+  //   tsLoaderOptions = Object.assign(tsLoaderOptions as any, config.ts);
+  // }
 
   if (config.style) {
     const { sass, less, css, postcss } = config.style;
@@ -463,15 +479,10 @@ const configuration: Configuration = {
       },
       {
         test: /\.tsx?$/,
-        exclude: /node_modules/,
         use: [
           {
             loader: 'babel-loader',
             options: babelLoaderOptions,
-          },
-          {
-            loader: 'ts-loader',
-            options: tsLoaderOptions,
           },
         ],
       },
@@ -516,7 +527,7 @@ const configuration: Configuration = {
   },
   stats: false,
   performance: false,
-  devtool: 'inline-source-map',
+  devtool: isProduction ? false : 'inline-source-map',
   mode: isProduction ? 'production' : 'development',
 };
 

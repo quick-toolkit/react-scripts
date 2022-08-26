@@ -2,9 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { transformer } from '../utils';
 import { Swagger } from './swagger/swagger';
-import { SwaggerGeneratorDto } from './swagger/swagger-generator-dto';
 import { OpenApi } from './swagger/open-api';
-import { SwaggerGeneratorVo } from './swagger/swagger-generator-vo';
 import { OpenApiDefinition } from './swagger/open-api/open-api-definition';
 import { SwaggerGenerator } from './swagger/swagger-generator';
 
