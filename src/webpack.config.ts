@@ -66,11 +66,11 @@ let babelLoaderOptions = {
   ],
   plugins: isProduction
     ? [
+        '@babel/plugin-transform-runtime',
         ['@babel/plugin-proposal-decorators', { legacy: true }],
         '@babel/plugin-proposal-class-properties',
       ]
     : [
-        '@babel/plugin-transform-runtime',
         require.resolve('react-refresh/babel'),
         ['@babel/plugin-proposal-decorators', { legacy: true }],
         '@babel/plugin-proposal-class-properties',
