@@ -66,7 +66,15 @@ let babelLoaderOptions = {
   ],
   plugins: isProduction
     ? [
-        '@babel/plugin-transform-runtime',
+        [
+          '@babel/plugin-transform-runtime',
+          {
+            absoluteRuntime: false,
+            corejs: false,
+            helpers: true,
+            regenerator: true,
+          },
+        ],
         ['@babel/plugin-proposal-decorators', { legacy: true }],
         '@babel/plugin-proposal-class-properties',
       ]
