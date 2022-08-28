@@ -133,6 +133,9 @@ let eslintOptions = {
   context: path.resolve('src'),
   cwd: path.resolve(),
   resolvePluginsRelativeTo: __dirname,
+  baseConfig: {
+    extends: [require.resolve('eslint-config-react-app/base')],
+  },
 };
 
 let customWebpackConfig: any;
