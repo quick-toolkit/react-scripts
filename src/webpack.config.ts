@@ -68,6 +68,14 @@ let babelLoaderOptions = {
     ? [
         ['@babel/plugin-proposal-decorators', { legacy: true }],
         '@babel/plugin-proposal-class-properties',
+        [
+          '@babel/plugin-transform-runtime',
+          {
+            regenerator: true,
+            corejs: 2,
+            version: '^7.7.4',
+          },
+        ],
       ]
     : [
         require.resolve('react-refresh/babel'),
