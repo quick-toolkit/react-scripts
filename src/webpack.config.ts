@@ -66,6 +66,7 @@ let babelLoaderOptions = {
   ],
   plugins: isProduction
     ? [
+        'transform-typescript-metadata',
         ['@babel/plugin-proposal-decorators', { legacy: true }],
         '@babel/plugin-proposal-class-properties',
         [
@@ -79,6 +80,7 @@ let babelLoaderOptions = {
       ]
     : [
         require.resolve('react-refresh/babel'),
+        'transform-typescript-metadata',
         ['@babel/plugin-proposal-decorators', { legacy: true }],
         '@babel/plugin-proposal-class-properties',
       ],
