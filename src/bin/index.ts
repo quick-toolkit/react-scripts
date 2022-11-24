@@ -63,6 +63,7 @@ program
       );
     }
 
+    rimraf.sync(path.resolve('node_modules', '.cache'));
     spawn(
       'node',
       [
@@ -79,13 +80,14 @@ program
   .command('swagger-generator')
   .description('Build swagger docs')
   .action(() => {
-    swaggerGenerator();
+    void swaggerGenerator();
   });
 
 program
   .command('build')
   .description('Build react app')
   .action(() => {
+    rimraf.sync(path.resolve('node_modules', '.cache'));
     require('dotenv').config();
     setEnv();
     build();
@@ -95,7 +97,6 @@ program
   .command('create <project-name>')
   .description('Create react app')
   .action((projectName: string) => {
-    rimraf.sync(path.resolve('node_modules', '.cache'));
     const spinner = ora('Start download template.');
     download(
       'quick-toolkit/react-app-template',

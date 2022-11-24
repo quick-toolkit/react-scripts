@@ -57,6 +57,7 @@ commander_1.program
     if (size % 1024 !== 0) {
         throw new TypeError('The option "max_old_space_size" argument must be multiple of 1024.');
     }
+    rimraf_1.default.sync(path_1.default.resolve('node_modules', '.cache'));
     (0, child_process_1.spawn)('node', [
         path_1.default.join(__dirname, '../', 'lib', 'start.js'),
         `--max_old_space_size=${size}`,
@@ -68,12 +69,13 @@ commander_1.program
     .command('swagger-generator')
     .description('Build swagger docs')
     .action(() => {
-    (0, swagger_generator_1.swaggerGenerator)();
+    void (0, swagger_generator_1.swaggerGenerator)();
 });
 commander_1.program
     .command('build')
     .description('Build react app')
     .action(() => {
+    rimraf_1.default.sync(path_1.default.resolve('node_modules', '.cache'));
     require('dotenv').config();
     (0, set_env_1.setEnv)();
     (0, build_1.build)();
@@ -82,7 +84,6 @@ commander_1.program
     .command('create <project-name>')
     .description('Create react app')
     .action((projectName) => {
-    rimraf_1.default.sync(path_1.default.resolve('node_modules', '.cache'));
     const spinner = (0, ora_1.default)('Start download template.');
     (0, download_git_repo_1.default)('quick-toolkit/react-app-template', path_1.default.resolve(projectName), async (err) => {
         if (err) {
