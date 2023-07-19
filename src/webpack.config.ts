@@ -138,7 +138,7 @@ const miniCssExtractPluginOptions = {
   publicPath: process.env.PUBLIC_URL,
 };
 let fileLoaderOptions = {};
-let stylelintOptions = {};
+let stylelintOptions = null;
 let eslintOptions = {
   extensions: ['js', 'mjs', 'jsx', 'ts', 'tsx'],
   formatter: require.resolve('react-dev-utils/eslintFormatter'),
