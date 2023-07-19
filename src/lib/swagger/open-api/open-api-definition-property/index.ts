@@ -18,7 +18,7 @@ import { Utils } from '../../utils';
  */
 export class OpenApiDefinitionProperty {
   @Typed()
-  public type:
+  public type?:
     | 'object'
     | 'string'
     | 'array'
@@ -29,7 +29,7 @@ export class OpenApiDefinitionProperty {
     | 'number';
 
   @Typed()
-  public description: string;
+  public description?: string;
 
   @TypedArray(String)
   public enum?: string[];
@@ -68,11 +68,11 @@ export class OpenApiDefinitionProperty {
                 [
                   factory.createPropertyAssignment(
                     'type',
-                    factory.createStringLiteral(this.type)
+                    factory.createStringLiteral(this.type || '')
                   ),
                   factory.createPropertyAssignment(
                     'description',
-                    factory.createStringLiteral(this.description)
+                    factory.createStringLiteral(this.description || '')
                   ),
                 ],
                 true

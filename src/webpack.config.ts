@@ -138,7 +138,7 @@ const miniCssExtractPluginOptions = {
   publicPath: process.env.PUBLIC_URL,
 };
 let fileLoaderOptions = {};
-let stylelintOptions = null;
+let stylelintOptions = {};
 let eslintOptions = {
   extensions: ['js', 'mjs', 'jsx', 'ts', 'tsx'],
   formatter: require.resolve('react-dev-utils/eslintFormatter'),
@@ -243,7 +243,7 @@ const getStyleLoaders = (isModule = false, importLoaders = 0): any => {
   const cssLoader: any = {
     loader: 'css-loader',
     options: {
-      modules: isModule,
+      modules: isModule ? {} : false,
       import: true,
       url: true,
       importLoaders,
@@ -255,8 +255,9 @@ const getStyleLoaders = (isModule = false, importLoaders = 0): any => {
     options: postCssOptions,
   };
   if (isModule) {
-    cssLoader.options.localIdentName = '[path][name]__[local]--[hash:base64:5]';
-    cssLoader.options.camelCase = true;
+    cssLoader.options.modules.exportLocalsConvention = 'camelCase';
+    cssLoader.options.modules.localIdentName =
+      '[path][name]__[local]--[hash:base64:5]';
   }
 
   return isProduction
@@ -379,15 +380,16 @@ const configuration: Configuration = {
   module: {
     rules: [
       {
-        test: /\.module.css$/i,
+        test: /\.module\.css$/i,
         use: getStyleLoaders(true, isProduction ? 1 : 0),
       },
       {
         test: /\.css$/i,
+        exclude: /\.module\.css$/i,
         use: getStyleLoaders(false, isProduction ? 1 : 0),
       },
       {
-        test: /\.module.less$/,
+        test: /\.module\.less$/,
         use: [
           ...getStyleLoaders(true, isProduction ? 1 : 0),
           {
@@ -398,6 +400,7 @@ const configuration: Configuration = {
       },
       {
         test: /\.less$/,
+        exclude: /\.module\.less$/i,
         use: [
           ...getStyleLoaders(false, isProduction ? 1 : 0),
           {
@@ -407,7 +410,7 @@ const configuration: Configuration = {
         ],
       },
       {
-        test: /\.module.s[ac]ss$/i,
+        test: /\.module\.s[ac]ss$/i,
         use: [
           ...getStyleLoaders(true, isProduction ? 2 : 0),
           {
@@ -418,6 +421,7 @@ const configuration: Configuration = {
       },
       {
         test: /\.s[ac]ss$/i,
+        exclude: /\.module\.s[ac]ss$/i,
         use: [
           ...getStyleLoaders(false, isProduction ? 2 : 0),
           {

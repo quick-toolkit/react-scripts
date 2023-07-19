@@ -154,32 +154,38 @@ export class OpenApiPathMethodInfo {
     dest: string,
     output: SwaggerGenerator
   ): Promise<void> {
-    this.init();
     const fileName = path.join(dest, Utils.getName(name) + '.ts');
-    const tsSourceFile = createSourceFile(fileName, '', ScriptTarget.Latest);
-    const members = this.getMembers();
-    const sourceFile = factory.createSourceFile(
-      [
-        ...this.createImportDeclarations(),
-        Utils.createNewLine(),
-        factory.createClassDeclaration(
-          this.createDecorators(url, method),
-          OpenApiPathMethodInfo.createModifiers(),
-          name,
-          [],
-          undefined,
-          members
-        ),
-      ],
-      factory.createToken(SyntaxKind.EndOfFileToken),
-      NodeFlags.None
-    );
-    const file = Utils.printer.printNode(
-      EmitHint.SourceFile,
-      sourceFile,
-      tsSourceFile
-    );
+    try {
+      this.init();
+      const tsSourceFile = createSourceFile(fileName, '', ScriptTarget.Latest);
+      const members = this.getMembers();
+      const sourceFile = factory.createSourceFile(
+        [
+          ...this.createImportDeclarations(),
+          Utils.createNewLine(),
+          factory.createClassDeclaration(
+            // [],
+            this.createDecorators(url, method),
+            OpenApiPathMethodInfo.createModifiers(),
+            name,
+            [],
+            undefined,
+            members
+          ),
+        ],
+        factory.createToken(SyntaxKind.EndOfFileToken),
+        NodeFlags.None
+      );
 
-    await Utils.write(fileName, Utils.unescape(file));
+      const file = Utils.printer.printNode(
+        EmitHint.SourceFile,
+        sourceFile,
+        tsSourceFile
+      );
+
+      await Utils.write(fileName, Utils.unescape(file));
+    } catch (e) {
+      console.error(`CreateFileError: ${fileName}`);
+    }
   }
 }

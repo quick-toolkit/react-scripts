@@ -24,13 +24,13 @@ export class OpenApiPathMethodParameter {
   public in: 'query' | 'header' | 'path' | 'body';
 
   @Typed()
-  public description: string;
+  public description?: string;
 
   @Typed()
   public required: boolean;
 
   @Typed()
-  public type: string;
+  public type?: string;
 
   @Typed()
   public style?: string;
@@ -98,7 +98,7 @@ export class OpenApiPathMethodParameter {
                 ),
                 factory.createPropertyAssignment(
                   factory.createIdentifier('description'),
-                  factory.createStringLiteral(this.description)
+                  factory.createStringLiteral(this.description || '')
                 ),
                 factory.createPropertyAssignment(
                   factory.createIdentifier('in'),
@@ -185,14 +185,16 @@ export class OpenApiPathMethodParameter {
       }
     } else {
       const args: Expression[] = [];
-      if (this.type === 'string') {
-        args.push(factory.createIdentifier('String'));
-      }
-      if (this.type === 'boolean') {
-        args.push(factory.createIdentifier('Boolean'));
-      }
-      if (/(integer|number|float|double)/.test(this.type)) {
-        args.push(factory.createIdentifier('Number'));
+      if (this.type) {
+        if (this.type === 'string') {
+          args.push(factory.createIdentifier('String'));
+        }
+        if (this.type === 'boolean') {
+          args.push(factory.createIdentifier('Boolean'));
+        }
+        if (/(integer|number|float|double)/.test(this.type)) {
+          args.push(factory.createIdentifier('Number'));
+        }
       }
       const properties: ObjectLiteralElementLike[] = [];
       if (this.required) {

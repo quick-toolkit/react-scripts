@@ -28,6 +28,7 @@ import { program } from 'commander';
 import chalk from 'chalk';
 import path from 'path';
 import inquirer from 'inquirer';
+// @ts-ignore
 import download from 'download-git-repo';
 import rimraf from 'rimraf';
 import { build } from '../lib/build';
@@ -79,8 +80,8 @@ program
 program
   .command('swagger-generator')
   .description('Build swagger docs')
-  .action(() => {
-    void swaggerGenerator();
+  .action(async () => {
+    await swaggerGenerator();
   });
 
 program
