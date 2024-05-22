@@ -24,8 +24,7 @@ import {
   Configuration,
   // WatchIgnorePlugin,
   WebpackPluginInstance,
-  EnvironmentPlugin,
-  // IgnorePlugin,
+  IgnorePlugin,
   AutomaticPrefetchPlugin,
 } from 'webpack';
 import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
@@ -35,7 +34,6 @@ import CopyWebpackPlugin from 'copy-webpack-plugin';
 import StylelintWebpackPlugin from 'stylelint-webpack-plugin';
 import ESLintWebpackPlugin from 'eslint-webpack-plugin';
 import CssMinimizerPlugin from 'css-minimizer-webpack-plugin';
-import TerserPlugin from 'terser-webpack-plugin';
 import { WebpackManifestPlugin } from 'webpack-manifest-plugin';
 import ReactRefreshPlugin from '@pmmmwh/react-refresh-webpack-plugin';
 import postcssNormalize from 'postcss-normalize';
@@ -43,7 +41,9 @@ import { merge } from 'webpack-merge';
 import path from 'path';
 import fs from 'fs';
 import ignoredFiles from './ignoredFiles';
-import Server from 'webpack-dev-server';
+import WebpackDevServer from 'webpack-dev-server';
+import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
+import TerserPlugin from 'terser-webpack-plugin';
 
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -57,6 +57,7 @@ const reactRefreshOverlayEntry = require.resolve(
 const evalSourceMapMiddleware = require('react-dev-utils/evalSourceMapMiddleware');
 const noopServiceWorkerMiddleware = require('react-dev-utils/noopServiceWorkerMiddleware');
 const redirectServedPath = require('react-dev-utils/redirectServedPathMiddleware');
+const DotEnv = require('dotenv-webpack');
 
 let babelLoaderOptions = {
   presets: [
@@ -139,7 +140,7 @@ const miniCssExtractPluginOptions = {
 };
 let fileLoaderOptions = {};
 let stylelintOptions = null;
-let eslintOptions = {
+let eslintOptions: any = {
   extensions: ['js', 'mjs', 'jsx', 'ts', 'tsx'],
   formatter: require.resolve('react-dev-utils/eslintFormatter'),
   cache: true,
@@ -155,7 +156,7 @@ let eslintOptions = {
 
 let customWebpackConfig: any;
 
-let devServerOptions: Server.Configuration = {
+let devServerOptions: WebpackDevServer.Configuration = {
   static: {
     directory: path.resolve('public'),
     publicPath: [process.env.PUBLIC_URL || ''],
@@ -166,16 +167,13 @@ let devServerOptions: Server.Configuration = {
   client: {
     logging: 'none',
     progress: true,
-    overlay: {
-      errors: true,
-      warnings: false,
-    },
+    overlay: false,
   },
   port: 3000,
   hot: true,
   historyApiFallback: {
     disableDotRule: true,
-    index: `${process.env.PUBLIC_URL || '/'}`,
+    index: process.env.PUBLIC_URL || '/',
   },
   setupMiddlewares: (middlewares, devServer) => {
     middlewares.unshift(evalSourceMapMiddleware(devServer));
@@ -188,6 +186,7 @@ let devServerOptions: Server.Configuration = {
   compress: true,
   open: false,
 };
+let bundleAnalyzerOptions: object | null = {};
 
 if (fs.existsSync(path.resolve('project.config.js'))) {
   const config: any = require(path.resolve('project.config.js'));
@@ -219,6 +218,8 @@ if (fs.existsSync(path.resolve('project.config.js'))) {
 
   if (config.eslint) {
     eslintOptions = Object.assign(eslintOptions, config.eslint);
+  } else {
+    eslintOptions = null;
   }
 
   if (config.styleLint) {
@@ -231,6 +232,12 @@ if (fs.existsSync(path.resolve('project.config.js'))) {
 
   if (config.devServer) {
     devServerOptions = Object.assign(devServerOptions, config.devServer);
+  }
+
+  if (config.bundleAnalyzer) {
+    bundleAnalyzerOptions = config.bundleAnalyzer;
+  } else {
+    bundleAnalyzerOptions = null;
   }
 }
 
@@ -260,33 +267,33 @@ const getStyleLoaders = (isModule = false, importLoaders = 0): any => {
       '[path][name]__[local]--[hash:base64:5]';
   }
 
-  return isProduction
-    ? [
-        {
+  return [
+    isProduction
+      ? {
           loader: MiniCssExtractPlugin.loader,
           options: miniCssExtractPluginOptions,
-        },
-        cssLoader,
-        postCssLoader,
-      ]
-    : ['style-loader', cssLoader];
+        }
+      : 'style-loader',
+    cssLoader,
+    postCssLoader,
+  ];
 };
 
 const plugins: WebpackPluginInstance[] = [
   new AutomaticPrefetchPlugin(),
-  new ESLintWebpackPlugin(eslintOptions),
-  new EnvironmentPlugin([
-    'NODE_ENV',
-    'PUBLIC_URL',
-    'APP_RUNTIME_ENV',
-    'WDS_SOCKET_HOST',
-    'WDS_SOCKET_PORT',
-    'WDS_SOCKET_PATH',
-  ]),
-  // new IgnorePlugin({
-  //   resourceRegExp: /^\.\/locale$/,
-  //   contextRegExp: /moment$/,
-  // }),
+  new DotEnv(),
+  // new EnvironmentPlugin([
+  //   'NODE_ENV',
+  //   'PUBLIC_URL',
+  //   'APP_RUNTIME_ENV',
+  //   'WDS_SOCKET_HOST',
+  //   'WDS_SOCKET_PORT',
+  //   'WDS_SOCKET_PATH',
+  // ]),
+  new IgnorePlugin({
+    resourceRegExp: /^\.\/locale$/,
+    contextRegExp: /moment$/,
+  }),
   // new WatchIgnorePlugin({
   //   paths: [/\.js$/, /\.d\.ts$/],
   // }),
@@ -335,6 +342,10 @@ const plugins: WebpackPluginInstance[] = [
   }),
 ];
 
+if (eslintOptions) {
+  plugins.push(new ESLintWebpackPlugin(eslintOptions));
+}
+
 if (stylelintOptions) {
   plugins.push(new StylelintWebpackPlugin(stylelintOptions));
 }
@@ -359,6 +370,9 @@ if (isProduction) {
       ignoreOrder: isProduction,
     })
   );
+  if (bundleAnalyzerOptions) {
+    plugins.push(new BundleAnalyzerPlugin(bundleAnalyzerOptions));
+  }
 } else {
   plugins.push(
     new ReactRefreshPlugin({
@@ -432,72 +446,83 @@ const configuration: Configuration = {
       },
       {
         test: /\.(png|jpe?g|gif|svg|bmp|webp)(\?.*)?$/,
-        use: isProduction
-          ? {
-              loader: 'file-loader',
-              options: {
-                name: 'assets/images/[name].[contenthash:8].[ext]',
-                limit: 10000,
-                esModule: false,
-                ...fileLoaderOptions,
+        use: [
+          isProduction
+            ? {
+                loader: 'file-loader',
+                options: {
+                  name: 'assets/images/[name].[contenthash:8].[ext]',
+                  limit: 10000,
+                  esModule: false,
+                  ...fileLoaderOptions,
+                },
+              }
+            : {
+                loader: 'url-loader',
+                options: {
+                  esModule: false,
+                  limit: 8192,
+                },
               },
-            }
-          : {
-              loader: 'url-loader',
-              options: {
-                esModule: false,
-              },
-            },
+        ],
       },
       {
         test: /\.(mp4|webm|ogg|mp3|wav|flac|aac)(\?.*)?$/,
-        use: isProduction
-          ? {
-              loader: 'file-loader',
-              options: {
-                name: 'assets/medias/[name].[contenthash:8].[ext]',
-                limit: 10000,
-                esModule: false,
-                ...fileLoaderOptions,
+        use: [
+          isProduction
+            ? {
+                loader: 'file-loader',
+                options: {
+                  name: 'assets/medias/[name].[contenthash:8].[ext]',
+                  limit: 10000,
+                  esModule: false,
+                  ...fileLoaderOptions,
+                },
+              }
+            : {
+                loader: 'url-loader',
+                options: {
+                  esModule: false,
+                },
               },
-            }
-          : {
-              loader: 'url-loader',
-              options: {
-                esModule: false,
-              },
-            },
+        ],
       },
       {
         test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,
-        use: isProduction
-          ? {
-              loader: 'file-loader',
-              options: {
-                name: 'assets/fonts/[name].[contenthash:8].[ext]',
-                limit: 10000,
-                esModule: false,
-                ...fileLoaderOptions,
+        use: [
+          isProduction
+            ? {
+                loader: 'file-loader',
+                options: {
+                  name: 'assets/fonts/[name].[contenthash:8].[ext]',
+                  limit: 10000,
+                  esModule: false,
+                  ...fileLoaderOptions,
+                },
+              }
+            : {
+                loader: 'url-loader',
+                options: {
+                  esModule: false,
+                },
               },
-            }
-          : {
-              loader: 'url-loader',
-              options: {
-                esModule: false,
-              },
-            },
+        ],
       },
       {
         test: /\.m?jsx?$/,
         exclude: /(node_modules|bower_components)/,
-        use: {
-          loader: 'babel-loader',
-          options: babelLoaderOptions,
-        },
+        use: [
+          'thread-loader',
+          {
+            loader: 'babel-loader',
+            options: babelLoaderOptions,
+          },
+        ],
       },
       {
         test: /\.tsx?$/,
         use: [
+          'thread-loader',
           {
             loader: 'babel-loader',
             options: babelLoaderOptions,
@@ -508,8 +533,17 @@ const configuration: Configuration = {
   },
   cache: {
     type: 'filesystem',
-    compression: false,
     store: 'pack',
+    maxAge: 60000,
+    compression: 'gzip',
+    idleTimeout: 60000,
+    idleTimeoutAfterLargeChanges: 1000,
+    idleTimeoutForInitialStore: 0,
+    profile: false,
+    buildDependencies: {
+      config: [__filename],
+    },
+    //cacheDirectory: path.resolve('node_modules', '.cache', 'webpack'),
   },
   output: {
     publicPath: process.env.PUBLIC_URL,
@@ -528,7 +562,20 @@ const configuration: Configuration = {
   optimization: {
     minimize: isProduction,
     minimizer: isProduction
-      ? [new CssMinimizerPlugin(), new TerserPlugin()]
+      ? [
+          new CssMinimizerPlugin(),
+          new TerserPlugin({
+            exclude: [/\/npm/, /^npm/, /\/public/, /^public/],
+            parallel: true,
+            terserOptions: {
+              compress: {
+                unused: true,
+                drop_console: true,
+                drop_debugger: true,
+              },
+            },
+          }),
+        ]
       : [],
     splitChunks: isProduction && {
       maxAsyncSize: 200000,
@@ -549,7 +596,7 @@ const configuration: Configuration = {
   mode: isProduction ? 'production' : 'development',
 };
 
-export const devServer = devServerOptions;
+export const ServerConfiguration = devServerOptions;
 
 export const webpackConfig: Configuration = customWebpackConfig
   ? merge(configuration, customWebpackConfig)

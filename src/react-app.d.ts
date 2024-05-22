@@ -2,6 +2,16 @@
 /// <reference types="@types/react" />
 /// <reference types="@types/react-dom" />
 
+declare module 'webpack-bundle-analyzer' {
+  import { WebpackPluginInstance } from 'webpack';
+
+  interface BundleAnalyzerPluginConstructor {
+    new (...args: any[]): WebpackPluginInstance;
+  }
+  export let BundleAnalyzerPlugin: BundleAnalyzerPluginConstructor;
+  export default BundleAnalyzerPlugin;
+}
+
 declare global {
   declare namespace NodeJS {
     interface ProcessEnv {

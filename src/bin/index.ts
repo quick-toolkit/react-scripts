@@ -28,13 +28,13 @@ import { program } from 'commander';
 import chalk from 'chalk';
 import path from 'path';
 import inquirer from 'inquirer';
-// @ts-ignore
 import download from 'download-git-repo';
-import rimraf from 'rimraf';
 import { build } from '../lib/build';
 import { setEnv } from '../lib/set-env';
 import { install } from '../lib/install';
 import { swaggerGenerator } from '../lib/swagger-generator';
+import dotenv from 'dotenv';
+import { expand } from 'dotenv-expand';
 
 const PACKAGE = require(path.join(__dirname, '../', '../', 'package.json'));
 
@@ -45,7 +45,8 @@ program
   .description('Start react app')
   .option('-M, --max_old_space_size [size]', 'memory limit', '4096')
   .action((option: { max_old_space_size: string }) => {
-    require('dotenv').config();
+    expand(dotenv.config());
+
     setEnv(true);
     const size = Number(option.max_old_space_size);
     if (isNaN(size)) {
@@ -64,12 +65,11 @@ program
       );
     }
 
-    rimraf.sync(path.resolve('node_modules', '.cache'));
     spawn(
       'node',
       [
-        path.join(__dirname, '../', 'lib', 'start.js'),
         `--max_old_space_size=${size}`,
+        path.join(__dirname, '../', 'lib', 'start.js'),
       ],
       {
         stdio: 'inherit',
@@ -88,8 +88,7 @@ program
   .command('build')
   .description('Build react app')
   .action(() => {
-    rimraf.sync(path.resolve('node_modules', '.cache'));
-    require('dotenv').config();
+    expand(dotenv.config());
     setEnv();
     build();
   });
@@ -100,7 +99,7 @@ program
   .action((projectName: string) => {
     const spinner = ora('Start download template.');
     download(
-      'quick-toolkit/react-app-template',
+      'geckoai/react-app-template',
       path.resolve(projectName),
       async (err: Error) => {
         if (err) {

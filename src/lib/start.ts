@@ -33,8 +33,7 @@ const isInteractive = process.stdout.isTTY;
 
 const openBrowser = require('react-dev-utils/openBrowser');
 
-
-const { webpackConfig, devServer } = require('../webpack.config');
+const { webpackConfig, ServerConfiguration } = require('../webpack.config');
 const compiler = webpack(webpackConfig as Configuration);
 compiler.hooks.invalid.tap('invalid', () => {
   if (isInteractive) {
@@ -60,7 +59,7 @@ if (webpackConfig) {
   }
 }
 
-const server = new Server(devServer as Server.Configuration, compiler);
+const server = new Server(ServerConfiguration, compiler);
 
 const port = server.options.port || 3000;
 server.options.open = false;
@@ -68,7 +67,8 @@ const protocol: string =
   (server.options.server || ({ type: 'http' } as any)).type || 'http';
 const address = ip.address();
 
-const PACK = require(path.resolve('package.json'));
+const PACK: { name: string } = require(path.resolve('package.json'));
+
 compiler.hooks.done.tap('done', (stats) => {
   if (isInteractive) {
     clearConsole();
@@ -95,6 +95,19 @@ compiler.hooks.done.tap('done', (stats) => {
 });
 
 server.startCallback(() => {
+  if (isInteractive) {
+    clearConsole();
+  }
   console.log(chalk.cyan('Starting the development server...\n'));
   openBrowser(`${protocol}://localhost:${port}`);
+});
+
+process.on('SIGINT', function () {
+  server.stopCallback();
+  process.exit();
+});
+
+process.on('SIGTERM', function () {
+  server.stopCallback();
+  process.exit();
 });
