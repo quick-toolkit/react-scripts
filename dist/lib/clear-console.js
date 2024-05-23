@@ -1,3 +1,4 @@
+"use strict";
 /**
  * MIT License
  * Copyright (c) 2021 RanYunLong<549510622@qq.com> @quick-toolkit/react-scripts
@@ -19,30 +20,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
-import { Configuration, webpack } from 'webpack';
-import rimraf from 'rimraf';
-import path from 'path';
-
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.clearConsole = void 0;
 /**
- * build
+ * 清除控制台
  */
-export function build(): void {
-  rimraf.sync(path.resolve('dist'));
-  const { webpackConfig } = require('../webpack.config');
-  const compiler = webpack(webpackConfig as Configuration);
-  compiler.run((err, status) => {
-    if (err) {
-      console.log(err);
-    } else if (status) {
-      console.log(
-        status.toString({
-          all: false,
-          builtAt: true,
-          warnings: true,
-          errors: true,
-        })
-      );
-    }
-  });
+function clearConsole() {
+    // process.stdout.clearScreenDown();
+    process.stdout.write(process.platform === 'win32' ? '\x1B[2J\x1B[0f' : '\x1B[2J\x1B[3J\x1B[H');
 }
+exports.clearConsole = clearConsole;

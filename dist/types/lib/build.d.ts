@@ -19,30 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
-import { Configuration, webpack } from 'webpack';
-import rimraf from 'rimraf';
-import path from 'path';
-
 /**
  * build
  */
-export function build(): void {
-  rimraf.sync(path.resolve('dist'));
-  const { webpackConfig } = require('../webpack.config');
-  const compiler = webpack(webpackConfig as Configuration);
-  compiler.run((err, status) => {
-    if (err) {
-      console.log(err);
-    } else if (status) {
-      console.log(
-        status.toString({
-          all: false,
-          builtAt: true,
-          warnings: true,
-          errors: true,
-        })
-      );
-    }
-  });
-}
+export declare function build(): void;

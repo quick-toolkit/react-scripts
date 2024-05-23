@@ -1,3 +1,4 @@
+"use strict";
 /**
  * MIT License
  * Copyright (c) 2021 RanYunLong<549510622@qq.com> @quick-toolkit/react-scripts
@@ -19,30 +20,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
-import { Configuration, webpack } from 'webpack';
-import rimraf from 'rimraf';
-import path from 'path';
-
-/**
- * build
- */
-export function build(): void {
-  rimraf.sync(path.resolve('dist'));
-  const { webpackConfig } = require('../webpack.config');
-  const compiler = webpack(webpackConfig as Configuration);
-  compiler.run((err, status) => {
-    if (err) {
-      console.log(err);
-    } else if (status) {
-      console.log(
-        status.toString({
-          all: false,
-          builtAt: true,
-          warnings: true,
-          errors: true,
-        })
-      );
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
     }
-  });
-}
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+__exportStar(require("./bin"), exports);

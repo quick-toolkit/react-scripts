@@ -47,18 +47,6 @@ compiler.hooks.beforeCompile.tap('beforeCompile', () => {
   }
 });
 
-if (webpackConfig) {
-  if (webpackConfig.externals && webpackConfig.externalsType !== 'script') {
-    try {
-      console.log(`Copy externals files from ${PACKAGE_DIR} to ${DIST_DIR}`);
-      const strings = Object.keys(webpackConfig.externals);
-      copy(PACKAGE_DIR, strings, DIST_DIR);
-    } catch (e) {
-      console.error(e);
-    }
-  }
-}
-
 const server = new Server(ServerConfiguration, compiler);
 
 const port = server.options.port || 3000;

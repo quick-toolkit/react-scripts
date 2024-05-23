@@ -58,6 +58,7 @@ const evalSourceMapMiddleware = require('react-dev-utils/evalSourceMapMiddleware
 const noopServiceWorkerMiddleware = require('react-dev-utils/noopServiceWorkerMiddleware');
 const redirectServedPath = require('react-dev-utils/redirectServedPathMiddleware');
 const DotEnv = require('dotenv-webpack');
+const HtmlWebpackDeployPlugin = require('html-webpack-deploy-plugin');
 
 let babelLoaderOptions = {
   presets: [
@@ -72,24 +73,24 @@ let babelLoaderOptions = {
   ],
   plugins: isProduction
     ? [
-        'transform-typescript-metadata',
-        ['@babel/plugin-proposal-decorators', { legacy: true }],
-        '@babel/plugin-proposal-class-properties',
-        [
-          '@babel/plugin-transform-runtime',
-          {
-            regenerator: true,
-            corejs: 2,
-            version: '^7.7.4',
-          },
-        ],
-      ]
-    : [
-        require.resolve('react-refresh/babel'),
-        'transform-typescript-metadata',
-        ['@babel/plugin-proposal-decorators', { legacy: true }],
-        '@babel/plugin-proposal-class-properties',
+      'transform-typescript-metadata',
+      ['@babel/plugin-proposal-decorators', { legacy: true }],
+      '@babel/plugin-proposal-class-properties',
+      [
+        '@babel/plugin-transform-runtime',
+        {
+          regenerator: true,
+          corejs: 2,
+          version: '^7.7.4',
+        },
       ],
+    ]
+    : [
+      require.resolve('react-refresh/babel'),
+      'transform-typescript-metadata',
+      ['@babel/plugin-proposal-decorators', { legacy: true }],
+      '@babel/plugin-proposal-class-properties',
+    ],
   cacheDirectory: true,
   cacheCompression: false,
   exclude: [
@@ -188,6 +189,8 @@ let devServerOptions: WebpackDevServer.Configuration = {
 };
 let bundleAnalyzerOptions: object | null = {};
 
+let deployOptions = null;
+
 if (fs.existsSync(path.resolve('project.config.js'))) {
   const config: any = require(path.resolve('project.config.js'));
   if (config.webpack) {
@@ -239,6 +242,12 @@ if (fs.existsSync(path.resolve('project.config.js'))) {
   } else {
     bundleAnalyzerOptions = null;
   }
+
+  if (config.deployOptions) {
+    deployOptions = config.deployOptions;
+  } else {
+    deployOptions = null;
+  }
 }
 
 /**
@@ -270,9 +279,9 @@ const getStyleLoaders = (isModule = false, importLoaders = 0): any => {
   return [
     isProduction
       ? {
-          loader: MiniCssExtractPlugin.loader,
-          options: miniCssExtractPluginOptions,
-        }
+        loader: MiniCssExtractPlugin.loader,
+        options: miniCssExtractPluginOptions,
+      }
       : 'style-loader',
     cssLoader,
     postCssLoader,
@@ -348,6 +357,10 @@ if (eslintOptions) {
 
 if (stylelintOptions) {
   plugins.push(new StylelintWebpackPlugin(stylelintOptions));
+}
+
+if (deployOptions) {
+  plugins.push(new HtmlWebpackDeployPlugin(deployOptions));
 }
 
 if (isProduction) {
@@ -449,21 +462,21 @@ const configuration: Configuration = {
         use: [
           isProduction
             ? {
-                loader: 'file-loader',
-                options: {
-                  name: 'assets/images/[name].[contenthash:8].[ext]',
-                  limit: 10000,
-                  esModule: false,
-                  ...fileLoaderOptions,
-                },
-              }
-            : {
-                loader: 'url-loader',
-                options: {
-                  esModule: false,
-                  limit: 8192,
-                },
+              loader: 'file-loader',
+              options: {
+                name: 'assets/images/[name].[contenthash:8].[ext]',
+                limit: 10000,
+                esModule: false,
+                ...fileLoaderOptions,
               },
+            }
+            : {
+              loader: 'url-loader',
+              options: {
+                esModule: false,
+                limit: 8192,
+              },
+            },
         ],
       },
       {
@@ -471,20 +484,20 @@ const configuration: Configuration = {
         use: [
           isProduction
             ? {
-                loader: 'file-loader',
-                options: {
-                  name: 'assets/medias/[name].[contenthash:8].[ext]',
-                  limit: 10000,
-                  esModule: false,
-                  ...fileLoaderOptions,
-                },
-              }
-            : {
-                loader: 'url-loader',
-                options: {
-                  esModule: false,
-                },
+              loader: 'file-loader',
+              options: {
+                name: 'assets/medias/[name].[contenthash:8].[ext]',
+                limit: 10000,
+                esModule: false,
+                ...fileLoaderOptions,
               },
+            }
+            : {
+              loader: 'url-loader',
+              options: {
+                esModule: false,
+              },
+            },
         ],
       },
       {
@@ -492,20 +505,20 @@ const configuration: Configuration = {
         use: [
           isProduction
             ? {
-                loader: 'file-loader',
-                options: {
-                  name: 'assets/fonts/[name].[contenthash:8].[ext]',
-                  limit: 10000,
-                  esModule: false,
-                  ...fileLoaderOptions,
-                },
-              }
-            : {
-                loader: 'url-loader',
-                options: {
-                  esModule: false,
-                },
+              loader: 'file-loader',
+              options: {
+                name: 'assets/fonts/[name].[contenthash:8].[ext]',
+                limit: 10000,
+                esModule: false,
+                ...fileLoaderOptions,
               },
+            }
+            : {
+              loader: 'url-loader',
+              options: {
+                esModule: false,
+              },
+            },
         ],
       },
       {
@@ -563,19 +576,19 @@ const configuration: Configuration = {
     minimize: isProduction,
     minimizer: isProduction
       ? [
-          new CssMinimizerPlugin(),
-          new TerserPlugin({
-            exclude: [/\/npm/, /^npm/, /\/public/, /^public/],
-            parallel: true,
-            terserOptions: {
-              compress: {
-                unused: true,
-                drop_console: true,
-                drop_debugger: true,
-              },
+        new CssMinimizerPlugin(),
+        new TerserPlugin({
+          exclude: [/\/npm/, /^npm/, /\/public/, /^public/],
+          parallel: true,
+          terserOptions: {
+            compress: {
+              unused: true,
+              drop_console: true,
+              drop_debugger: true,
             },
-          }),
-        ]
+          },
+        }),
+      ]
       : [],
     splitChunks: {
       maxAsyncSize: 200000,

@@ -1,3 +1,4 @@
+"use strict";
 /**
  * MIT License
  * Copyright (c) 2021 RanYunLong<549510622@qq.com> @quick-toolkit/react-scripts
@@ -19,30 +20,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
-import { Configuration, webpack } from 'webpack';
-import rimraf from 'rimraf';
-import path from 'path';
-
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.setEnv = void 0;
 /**
- * build
+ * 设置默认环境变量
+ * @param isDev
  */
-export function build(): void {
-  rimraf.sync(path.resolve('dist'));
-  const { webpackConfig } = require('../webpack.config');
-  const compiler = webpack(webpackConfig as Configuration);
-  compiler.run((err, status) => {
-    if (err) {
-      console.log(err);
-    } else if (status) {
-      console.log(
-        status.toString({
-          all: false,
-          builtAt: true,
-          warnings: true,
-          errors: true,
-        })
-      );
+function setEnv(isDev) {
+    if (process.env.PUBLIC_URL === undefined) {
+        process.env.PUBLIC_URL = '/';
     }
-  });
+    if (process.env.HOST === undefined) {
+        process.env.HOST = '0.0.0.0';
+    }
+    if (process.env.WDS_SOCKET_HOST === undefined) {
+        process.env.WDS_SOCKET_HOST = '';
+    }
+    if (process.env.WDS_SOCKET_PORT === undefined) {
+        process.env.WDS_SOCKET_PORT = '';
+    }
+    if (process.env.WDS_SOCKET_PATH === undefined) {
+        process.env.WDS_SOCKET_PATH = '/ws';
+    }
+    if (process.env.APP_RUNTIME_ENV === undefined) {
+        process.env.APP_RUNTIME_ENV = '';
+    }
+    if (process.env.MAX_OLD_SPACE_SIZE === undefined) {
+        process.env.MAX_OLD_SPACE_SIZE = '4096';
+    }
+    process.env.NODE_ENV = isDev ? 'development' : 'production';
 }
+exports.setEnv = setEnv;
