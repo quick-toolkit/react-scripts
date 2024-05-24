@@ -84,3 +84,8 @@ or change file `package.json` field `scripts`:
   }
 }
 ```
+
+
+```angular2html
+    McfatridgeSherril@gmail.com----bzj4yvnb6----fejziepeppesf@hotmail.com----X93AEX18
+```
