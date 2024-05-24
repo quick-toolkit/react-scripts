@@ -23,7 +23,6 @@
 import { Configuration, webpack } from 'webpack';
 import rimraf from 'rimraf';
 import path from 'path';
-
 /**
  * build
  */

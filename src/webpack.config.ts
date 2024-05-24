@@ -73,24 +73,24 @@ let babelLoaderOptions = {
   ],
   plugins: isProduction
     ? [
-      'transform-typescript-metadata',
-      ['@babel/plugin-proposal-decorators', { legacy: true }],
-      '@babel/plugin-proposal-class-properties',
-      [
-        '@babel/plugin-transform-runtime',
-        {
-          regenerator: true,
-          corejs: 2,
-          version: '^7.7.4',
-        },
-      ],
-    ]
+        'transform-typescript-metadata',
+        ['@babel/plugin-proposal-decorators', { legacy: true }],
+        '@babel/plugin-proposal-class-properties',
+        [
+          '@babel/plugin-transform-runtime',
+          {
+            regenerator: true,
+            corejs: 2,
+            version: '^7.7.4',
+          },
+        ],
+      ]
     : [
-      require.resolve('react-refresh/babel'),
-      'transform-typescript-metadata',
-      ['@babel/plugin-proposal-decorators', { legacy: true }],
-      '@babel/plugin-proposal-class-properties',
-    ],
+        require.resolve('react-refresh/babel'),
+        'transform-typescript-metadata',
+        ['@babel/plugin-proposal-decorators', { legacy: true }],
+        '@babel/plugin-proposal-class-properties',
+      ],
   cacheDirectory: true,
   cacheCompression: false,
   exclude: [
@@ -279,9 +279,9 @@ const getStyleLoaders = (isModule = false, importLoaders = 0): any => {
   return [
     isProduction
       ? {
-        loader: MiniCssExtractPlugin.loader,
-        options: miniCssExtractPluginOptions,
-      }
+          loader: MiniCssExtractPlugin.loader,
+          options: miniCssExtractPluginOptions,
+        }
       : 'style-loader',
     cssLoader,
     postCssLoader,
@@ -462,21 +462,21 @@ const configuration: Configuration = {
         use: [
           isProduction
             ? {
-              loader: 'file-loader',
-              options: {
-                name: 'assets/images/[name].[contenthash:8].[ext]',
-                limit: 10000,
-                esModule: false,
-                ...fileLoaderOptions,
-              },
-            }
+                loader: 'file-loader',
+                options: {
+                  name: 'assets/images/[name].[contenthash:8].[ext]',
+                  limit: 10000,
+                  esModule: false,
+                  ...fileLoaderOptions,
+                },
+              }
             : {
-              loader: 'url-loader',
-              options: {
-                esModule: false,
-                limit: 8192,
+                loader: 'url-loader',
+                options: {
+                  esModule: false,
+                  limit: 8192,
+                },
               },
-            },
         ],
       },
       {
@@ -484,20 +484,20 @@ const configuration: Configuration = {
         use: [
           isProduction
             ? {
-              loader: 'file-loader',
-              options: {
-                name: 'assets/medias/[name].[contenthash:8].[ext]',
-                limit: 10000,
-                esModule: false,
-                ...fileLoaderOptions,
-              },
-            }
+                loader: 'file-loader',
+                options: {
+                  name: 'assets/medias/[name].[contenthash:8].[ext]',
+                  limit: 10000,
+                  esModule: false,
+                  ...fileLoaderOptions,
+                },
+              }
             : {
-              loader: 'url-loader',
-              options: {
-                esModule: false,
+                loader: 'url-loader',
+                options: {
+                  esModule: false,
+                },
               },
-            },
         ],
       },
       {
@@ -505,20 +505,20 @@ const configuration: Configuration = {
         use: [
           isProduction
             ? {
-              loader: 'file-loader',
-              options: {
-                name: 'assets/fonts/[name].[contenthash:8].[ext]',
-                limit: 10000,
-                esModule: false,
-                ...fileLoaderOptions,
-              },
-            }
+                loader: 'file-loader',
+                options: {
+                  name: 'assets/fonts/[name].[contenthash:8].[ext]',
+                  limit: 10000,
+                  esModule: false,
+                  ...fileLoaderOptions,
+                },
+              }
             : {
-              loader: 'url-loader',
-              options: {
-                esModule: false,
+                loader: 'url-loader',
+                options: {
+                  esModule: false,
+                },
               },
-            },
         ],
       },
       {
@@ -576,19 +576,19 @@ const configuration: Configuration = {
     minimize: isProduction,
     minimizer: isProduction
       ? [
-        new CssMinimizerPlugin(),
-        new TerserPlugin({
-          exclude: [/\/npm/, /^npm/, /\/public/, /^public/],
-          parallel: true,
-          terserOptions: {
-            compress: {
-              unused: true,
-              drop_console: true,
-              drop_debugger: true,
+          new CssMinimizerPlugin(),
+          new TerserPlugin({
+            exclude: [/\/npm/, /^npm/, /\/public/, /^public/],
+            parallel: true,
+            terserOptions: {
+              compress: {
+                unused: true,
+                drop_console: true,
+                drop_debugger: true,
+              },
             },
-          },
-        }),
-      ]
+          }),
+        ]
       : [],
     splitChunks: {
       maxAsyncSize: 200000,

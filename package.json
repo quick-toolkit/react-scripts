@@ -1,9 +1,8 @@
 {
   "name": "@quick-toolkit/react-scripts",
-  "version": "1.0.22",
+  "version": "1.0.24",
   "description": "react-scripts",
   "main": "dist",
-  "types": "dist/types",
   "bin": {
     "react-scripts": "./dist/bin/index.js"
   },
@@ -48,8 +47,6 @@
     "@quick-toolkit/class-transformer": "^1.0.1",
     "@types/node": "^17.0.23",
     "@types/webpack-dev-server": "4.5.1",
-    "@typescript-eslint/eslint-plugin": "7.10.0",
-    "@typescript-eslint/parser": "7.10.0",
     "autoprefixer": "^10.4.4",
     "axios": "^0.27.2",
     "babel-loader": "^8.2.4",
