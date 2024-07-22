@@ -99,7 +99,7 @@ program
   .action((projectName: string) => {
     const spinner = ora('Start download template.');
     download(
-      'geckoai/react-app-template',
+      'quick-toolkit/react-app-template',
       path.resolve(projectName),
       async (err: Error) => {
         if (err) {
@@ -117,12 +117,12 @@ program
           const { select } = await inquirer.prompt<{ select: string }>({
             type: 'list',
             message: 'Select package manager.',
-            choices: ['use yarn', 'use npm'],
+            choices: ['use pnpm', 'use yarn'],
             default: 0,
             name: 'select',
           });
           try {
-            await install(select === 'use yarn' ? 'yarn' : 'npm', projectName);
+            await install(select === 'use pnpm' ? 'pnpm' : 'yarn', projectName);
             spinner.succeed('Install success.');
           } catch (err) {
             spinner.fail('Install fail.');
